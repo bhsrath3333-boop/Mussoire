@@ -1,0 +1,1653 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Switchback -- live trip planner for Dehradun, Mussoorie, Haridwar, Nainital, Bhimtal and Rishikesh." />
+<title>Switchback</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  :root {
+    --bg: #f5f1e6;
+    --bg-raised: #fffdf7;
+    --ink: #1c2a22;
+    --ink-soft: #55645a;
+    --line: #d9d0bb;
+    --accent: #c96a34;
+    --accent-ink: #fff7ef;
+    --pine: #3d6357;
+    --pine-soft: #e4ece7;
+    --gold: #b8862e;
+    --gold-soft: #f3e6c9;
+    --danger: #a3402f;
+    --danger-soft: #f6e4de;
+    --ok: #3d6357;
+    --ok-soft: #e4ece7;
+    --shadow: 0 1px 2px rgba(28,42,34,.06), 0 8px 24px -12px rgba(28,42,34,.18);
+    --hero-sky-top: #2f4a3d; --hero-sky-bottom: #f2b573; --hero-sun: #f6c453;
+    --hero-ridge-1: #86a290; --hero-ridge-2: #4f7360; --hero-ridge-3: #253a2e;
+    --hero-ink: #fff8ef;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #131a16; --bg-raised: #1b241e; --ink: #ecf1ea; --ink-soft: #a3b1a6;
+      --line: #2d3a31; --accent: #e08a52; --accent-ink: #241209; --pine: #86b39f;
+      --pine-soft: #1f2c26; --gold: #d9a744; --gold-soft: #2c2410; --danger: #e08a74;
+      --danger-soft: #33231e; --ok: #86b39f; --ok-soft: #1f2c26;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+      --hero-sky-top: #0c1310; --hero-sky-bottom: #3c2a1b; --hero-sun: #e08a52;
+      --hero-ridge-1: #3e4c43; --hero-ridge-2: #263630; --hero-ridge-3: #131c17;
+      --hero-ink: #fff8ef;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #131a16; --bg-raised: #1b241e; --ink: #ecf1ea; --ink-soft: #a3b1a6;
+    --line: #2d3a31; --accent: #e08a52; --accent-ink: #241209; --pine: #86b39f;
+    --pine-soft: #1f2c26; --gold: #d9a744; --gold-soft: #2c2410; --danger: #e08a74;
+    --danger-soft: #33231e; --ok: #86b39f; --ok-soft: #1f2c26;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+    --hero-sky-top: #0c1310; --hero-sky-bottom: #3c2a1b; --hero-sun: #e08a52;
+    --hero-ridge-1: #3e4c43; --hero-ridge-2: #263630; --hero-ridge-3: #131c17;
+    --hero-ink: #fff8ef;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    padding-inline: 16px; padding-block: 0 84px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; text-wrap: balance; margin: 0; }
+  .num { font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+  a { color: var(--accent); }
+  button { font-family: inherit; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  .icon-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+  .nav-icon { width: 22px; height: 22px; display: block; }
+  .nav-icon use { stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ---- left sidebar nav (desktop) ---- */
+  nav.sidenav {
+    display: none; position: fixed; left: 0; top: 0; bottom: 0; width: 88px; z-index: 30;
+    flex-direction: column; align-items: center; gap: 3px; padding-block: 20px;
+    background: var(--bg-raised); border-right: 1px solid var(--line);
+  }
+  .sidenav-brand {
+    width: 42px; height: 42px; border-radius: 13px; margin-bottom: 16px;
+    background: linear-gradient(160deg, var(--hero-ridge-2), var(--pine));
+    color: var(--hero-ink); display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif; font-weight: 700; font-size: 19px;
+  }
+  .sidenav-btn {
+    width: 72px; display: flex; flex-direction: column; align-items: center; gap: 5px;
+    padding: 10px 4px; border: none; background: none; color: var(--ink-soft);
+    border-radius: 13px; cursor: pointer; font-size: 10.5px; font-weight: 600;
+  }
+  .sidenav-btn[aria-selected="true"] { background: var(--pine-soft); color: var(--pine); }
+  .sidenav-btn:focus-visible, .bottomnav-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+  /* ---- bottom tab bar (mobile) ---- */
+  nav.bottomnav {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: flex; justify-content: space-around;
+    background: var(--bg-raised); border-top: 1px solid var(--line);
+    padding: 6px 2px calc(6px + env(safe-area-inset-bottom));
+  }
+  .bottomnav-btn {
+    flex: 1; max-width: 84px; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    border: none; background: none; color: var(--ink-soft); font-size: 10px; font-weight: 600;
+    padding: 5px 2px; border-radius: 11px;
+  }
+  .bottomnav-btn[aria-selected="true"] { color: var(--pine); }
+  .bottomnav-btn .nav-icon { width: 21px; height: 21px; }
+
+  @media (min-width: 860px) {
+    body { padding-left: 104px; padding-block-end: 40px; }
+    nav.sidenav { display: flex; }
+    nav.bottomnav { display: none; }
+  }
+
+  /* ---- hero ---- */
+  .hero { position: relative; margin-top: 18px; border-radius: 18px; overflow: hidden; box-shadow: var(--shadow); }
+  .hero svg { display: block; width: 100%; height: auto; }
+  .hero-content { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; padding: 16px 18px; }
+  .eyebrow { font-size: 11.5px; letter-spacing: .10em; text-transform: uppercase; color: var(--hero-ink); opacity: .85; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--hero-sun); }
+  h1.brand { font-size: clamp(24px, 5.4vw, 34px); font-weight: 600; color: var(--hero-ink); margin-top: 2px; text-shadow: 0 2px 14px rgba(0,0,0,.25); }
+  h1.brand em { font-style: normal; color: var(--hero-sun); }
+  .route { font-size: 12.5px; color: var(--hero-ink); opacity: .9; margin-top: 4px; }
+  .route .arrow { color: var(--hero-sun); margin: 0 3px; }
+
+  header.top { padding-block: 0; background: var(--bg); padding-top: 4px; }
+
+  main { padding-top: 6px; }
+  section.panel { display: none; }
+  section.panel.active { display: block; animation: rise .25s ease both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { section.panel.active { animation: none; } }
+
+  .panel-head { margin-bottom: 14px; }
+  .panel-head h2 { font-size: 21px; font-weight: 600; }
+  .panel-head p { margin: 4px 0 0; color: var(--ink-soft); font-size: 13.5px; }
+
+  .card { background: var(--bg-raised); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
+  .stack { display: flex; flex-direction: column; gap: 12px; }
+
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  label { font-size: 12px; font-weight: 600; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .05em; }
+  input[type="text"], input[type="number"], input[type="date"], select, textarea {
+    font: inherit; padding: 9px 11px; border-radius: 9px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--ink); width: 100%;
+  }
+  textarea { resize: vertical; min-height: 54px; }
+  input:focus-visible, select:focus-visible, button:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .btn { border: none; border-radius: 9px; padding: 10px 16px; font-weight: 600; font-size: 14px; cursor: pointer; background: var(--pine); color: var(--accent-ink, #fff); }
+  .btn.accent { background: var(--accent); }
+  .btn.ghost { background: transparent; border: 1px solid var(--line); color: var(--ink); }
+  .btn.sm { padding: 6px 11px; font-size: 12.5px; border-radius: 7px; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  @media (max-width: 480px) { .grid2 { grid-template-columns: 1fr; } }
+  .add-form { padding: 14px; margin-bottom: 16px; }
+  .empty { color: var(--ink-soft); font-size: 13.5px; padding: 18px 4px; text-align: center; }
+
+  /* ---- nearby banner ---- */
+  .nearby-banner {
+    display: none; align-items: center; gap: 10px; background: var(--gold-soft); border: 1px solid var(--gold);
+    color: var(--ink); border-radius: 12px; padding: 10px 12px; margin: 12px 0; font-size: 13.5px;
+  }
+  .nearby-banner.show { display: flex; }
+  .nearby-banner .txt { flex: 1; }
+  .nearby-banner button { border: none; background: none; color: var(--ink-soft); font-size: 15px; cursor: pointer; padding: 2px 6px; }
+
+  /* ---- day sub-tabs ---- */
+  .day-tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin-bottom: 14px; }
+  .day-tabs::-webkit-scrollbar { display: none; }
+  .day-chip {
+    flex: 0 0 auto; border: 1px solid var(--line); background: var(--bg-raised); border-radius: 12px;
+    padding: 8px 12px; cursor: pointer; text-align: left; min-width: 84px;
+  }
+  .day-chip .dnum { font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-soft); font-weight: 700; }
+  .day-chip .dcity { font-size: 13px; font-weight: 600; margin-top: 2px; }
+  .day-chip[aria-selected="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--bg-raised)); }
+  .day-chip[aria-selected="true"] .dnum { color: var(--accent); }
+
+  .day-detail { padding: 16px; margin-bottom: 16px; }
+  .day-detail .dtitle { font-size: 19px; font-weight: 600; }
+  .day-detail .dsub { color: var(--ink-soft); font-size: 13px; margin-top: 2px; }
+  .stay-tag {
+    display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 12.5px; font-weight: 600;
+    background: var(--pine-soft); color: var(--pine); padding: 5px 10px; border-radius: 999px;
+  }
+  .plan-list { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  .plan-item { border-radius: 10px; }
+  .plan-row { display: flex; gap: 10px; font-size: 13.5px; line-height: 1.45; cursor: pointer; padding: 6px 8px; border-radius: 10px; align-items: flex-start; }
+  .plan-row:hover { background: var(--bg); }
+  .plan-item.warn .plan-row { color: var(--danger); }
+  .plan-time { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; padding-top: 1px; min-width: 66px; }
+  .plan-item.warn .plan-time { color: var(--danger); }
+  .plan-chev { margin-left: auto; color: var(--ink-soft); font-size: 11px; transition: transform .15s; padding-top: 2px; }
+  .plan-item.open .plan-chev { transform: rotate(90deg); }
+  .plan-detail { display: none; padding: 10px 12px 12px 84px; font-size: 12.5px; }
+  .plan-item.open .plan-detail { display: flex; flex-direction: column; gap: 10px; }
+  .poc-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .poc-row input { flex: 1; min-width: 110px; padding: 7px 9px; font-size: 12.5px; }
+  .poc-display { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; font-size: 12.5px; }
+  .poc-display a { color: var(--ink); text-decoration: none; border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; background: var(--bg-raised); }
+  .bill-chip { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: var(--bg-raised); border: 1px solid var(--line); border-radius: 8px; padding: 6px 9px; font-size: 12px; }
+  .bill-unlink { border: none; background: none; color: var(--ink-soft); cursor: pointer; font-size: 12px; }
+  .plan-detail-label { font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-soft); font-weight: 700; }
+  .nav-chip {
+    display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700;
+    color: var(--pine); text-decoration: none; border: 1px solid var(--pine); border-radius: 999px;
+    padding: 3px 8px; white-space: nowrap;
+  }
+
+  /* ---- route overview ---- */
+  .route-card { padding: 14px 16px; margin-bottom: 16px; }
+  .route-legs { display: flex; align-items: center; flex-wrap: wrap; gap: 0; margin-top: 10px; }
+  .route-stop { font-size: 12.5px; font-weight: 700; background: var(--pine-soft); color: var(--pine); border-radius: 999px; padding: 5px 11px; }
+  .route-leg { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: var(--ink-soft); margin: 0 4px; }
+  .route-leg .ln { width: 26px; height: 1px; background: var(--line); margin-bottom: 2px; }
+  .route-note { font-size: 12.5px; color: var(--ink-soft); margin-top: 12px; line-height: 1.5; }
+
+  /* ---- must visit ---- */
+  .must-visit { padding: 14px 16px; margin: 16px 0; }
+  .must-visit h3 { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .must-visit .sub { font-size: 11.5px; color: var(--ink-soft); margin-bottom: 10px; }
+  .mv-list { display: flex; flex-direction: column; gap: 8px; }
+  .mv-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+  .mv-gem { font-size: 10px; text-transform: uppercase; letter-spacing: .04em; font-weight: 700; color: var(--gold); background: var(--gold-soft); border-radius: 999px; padding: 2px 7px; margin-left: 6px; }
+
+  .sugg-head { display: flex; justify-content: space-between; align-items: baseline; margin: 4px 0 10px; }
+  .sugg-head h3 { font-size: 14.5px; font-weight: 600; }
+  .sugg-head span { font-size: 12px; color: var(--ink-soft); }
+  .idea { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .idea-top { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+  .idea-title { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 600; }
+  .idea-note { font-size: 13px; color: var(--ink-soft); }
+  .idea-bottom { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .vote-btns { display: flex; gap: 6px; }
+  .vote-btn { border: 1px solid var(--line); background: var(--bg); border-radius: 9px; padding: 6px 10px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+  .vote-btn.yes[data-active="true"] { background: var(--ok-soft); color: var(--ok); border-color: currentColor; }
+  .vote-btn.maybe[data-active="true"] { background: var(--gold-soft); color: var(--gold); border-color: currentColor; }
+  .vote-btn.no[data-active="true"] { background: var(--danger-soft); color: var(--danger); border-color: currentColor; }
+  .score-badge { font-size: 12px; color: var(--ink-soft); }
+  .avatars { display: flex; }
+  .avatar { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #fff; border: 2px solid var(--bg-raised); margin-left: -6px; flex: 0 0 auto; }
+  .avatar:first-child { margin-left: 0; }
+  .locked { border-color: var(--accent); background: linear-gradient(0deg, color-mix(in srgb, var(--accent) 7%, transparent), transparent); }
+  .locked-tag { color: var(--accent); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+
+  /* ---- budget ---- */
+  .stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; }
+  @media (max-width: 480px) { .stat-row { grid-template-columns: 1fr 1fr; } }
+  .stat { padding: 12px 14px; }
+  .stat .k { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft); font-weight: 600; }
+  .stat .v { font-size: 20px; font-weight: 700; margin-top: 2px; }
+  .expense-row { padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .expense-desc { font-weight: 600; font-size: 14px; }
+  .expense-meta { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+  .expense-amt { font-weight: 700; font-size: 15px; white-space: nowrap; }
+  .settle-row { padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
+  .settle-row .arrow-ic { color: var(--gold); }
+  .settle-names { font-weight: 600; font-size: 14px; flex: 1; }
+  .settle-amt { font-weight: 700; color: var(--accent); }
+  .split-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .split-chip { border: 1px solid var(--line); border-radius: 999px; padding: 5px 10px; font-size: 12.5px; cursor: pointer; background: var(--bg); display: flex; align-items: center; gap: 5px; }
+  .split-chip[data-on="true"] { background: var(--pine-soft); border-color: var(--pine); color: var(--pine); font-weight: 600; }
+
+  .budget-bars { display: flex; flex-direction: column; gap: 12px; }
+  .bbar-row { padding: 12px 14px; }
+  .bbar-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13.5px; margin-bottom: 7px; }
+  .bbar-top .who { display: flex; align-items: center; gap: 7px; font-weight: 600; }
+  .bbar-track { height: 8px; border-radius: 999px; background: var(--pine-soft); overflow: hidden; }
+  .bbar-fill { height: 100%; background: var(--pine); border-radius: 999px; transition: width .3s; }
+  .bbar-fill.over { background: var(--danger); }
+  .bbar-sub { font-size: 11.5px; color: var(--ink-soft); margin-top: 5px; display: flex; align-items: center; gap: 5px; }
+  .lock-ic { opacity: .6; }
+  .bbar-edit-btn { border: none; background: none; color: var(--ink-soft); cursor: pointer; font-size: 13px; padding: 2px 4px; }
+  .bbar-edit-row { display: flex; gap: 6px; margin-top: 8px; }
+  .bbar-edit-row input { flex: 1; }
+  .cat-bars { display: flex; flex-direction: column; gap: 8px; }
+  .cat-row { display: grid; grid-template-columns: 90px 1fr 64px; align-items: center; gap: 8px; font-size: 12.5px; }
+  .cat-track { height: 10px; border-radius: 999px; background: var(--pine-soft); overflow: hidden; }
+  .cat-fill { height: 100%; border-radius: 999px; }
+
+  .seg-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; margin-bottom: 16px; background: var(--bg-raised); }
+  .seg-toggle button { border: none; background: none; padding: 7px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 600; color: var(--ink-soft); cursor: pointer; }
+  .seg-toggle button[aria-selected="true"] { background: var(--pine); color: var(--accent-ink, #fff); }
+  .calc-card { padding: 16px; display: none; }
+  .calc-card.show { display: block; }
+  .calc-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .calc-card p { font-size: 13px; color: var(--ink-soft); line-height: 1.55; margin: 6px 0 0; }
+  .calc-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 12.5px; }
+  .calc-table th, .calc-table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  .calc-table th { color: var(--ink-soft); font-weight: 600; text-transform: uppercase; font-size: 10.5px; letter-spacing: .04em; }
+  .calc-table td.amt { text-align: right; font-family: 'JetBrains Mono', monospace; }
+  .calc-total-row td { font-weight: 700; border-bottom: none; padding-top: 10px; }
+
+  /* ---- wishlist ---- */
+  .wl-filters { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .wl-filters button { border: 1px solid var(--line); background: var(--bg-raised); border-radius: 999px; padding: 6px 12px; font-size: 12.5px; font-weight: 600; color: var(--ink-soft); cursor: pointer; }
+  .wl-filters button[aria-selected="true"] { background: var(--pine); border-color: var(--pine); color: var(--accent-ink, #fff); }
+  .wl-card { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .wl-card.done { opacity: .62; }
+  .wl-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .wl-title { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 600; }
+  .wl-title.strike { text-decoration: line-through; }
+  .wl-meta { display: flex; flex-wrap: wrap; gap: 6px; font-size: 11.5px; color: var(--ink-soft); margin-top: 4px; }
+  .wl-tag { background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; }
+  .wl-done-tag { background: var(--ok-soft); color: var(--ok); font-weight: 700; border-radius: 999px; padding: 2px 9px; font-size: 11px; white-space: nowrap; }
+  .wl-links { display: flex; flex-wrap: wrap; gap: 6px; }
+  .wl-link { font-size: 11.5px; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 4px 9px; text-decoration: none; color: var(--ink); display: inline-flex; align-items: center; gap: 4px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .wl-actions-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .wl-comments { border-top: 1px dashed var(--line); padding-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .wl-comment { font-size: 12.5px; display: flex; gap: 6px; }
+  .wl-comment .who { font-weight: 700; flex: 0 0 auto; }
+  .wl-comment-form { display: flex; gap: 6px; }
+  .wl-comment-form input { flex: 1; }
+  .wl-toggle-comments { font-size: 11.5px; color: var(--ink-soft); background: none; border: none; cursor: pointer; text-decoration: underline; padding: 0; align-self: flex-start; }
+
+  /* ---- crew / profiles ---- */
+  .car-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  @media (max-width: 480px) { .car-row { grid-template-columns: 1fr; } }
+  .car-card { padding: 12px 14px; }
+  .car-head { display: flex; justify-content: space-between; align-items: center; font-size: 13.5px; font-weight: 700; margin-bottom: 8px; }
+  .car-head .seats { font-weight: 500; color: var(--ink-soft); font-size: 12px; }
+  .car-seats { display: flex; flex-wrap: wrap; gap: 6px; min-height: 30px; }
+  .seat-avatar { display: flex; align-items: center; gap: 5px; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px 3px 3px; font-size: 12px; }
+  .car-join { font-size: 11.5px; color: var(--ink-soft); margin-top: 8px; cursor: pointer; text-decoration: underline; background: none; border: none; padding: 0; }
+
+  .profile-card { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .profile-top { display: flex; align-items: center; gap: 10px; }
+  .profile-top .avatar { width: 38px; height: 38px; font-size: 14px; }
+  .profile-name { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 600; }
+  .profile-home { font-size: 12px; color: var(--ink-soft); }
+  .profile-you { margin-left: auto; font-size: 11px; color: var(--pine); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+  .profile-meta-row { display: flex; gap: 8px; flex-wrap: wrap; font-size: 12px; }
+  .meta-pill { background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 4px 9px; display: flex; align-items: center; gap: 5px; font: inherit; font-size: 12px; color: inherit; text-decoration: none; }
+  .wishlist-list { display: flex; flex-direction: column; gap: 6px; }
+  .wishlist-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12.5px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 6px 9px; }
+  .wishlist-item .wtag { font-size: 10.5px; color: var(--ink-soft); }
+  .wishlist-remove { border: none; background: none; color: var(--ink-soft); cursor: pointer; font-size: 13px; }
+  .profile-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .drive-link { font-size: 12.5px; display: flex; align-items: center; gap: 5px; }
+
+  .edit-panel { display: none; margin-top: 4px; padding-top: 10px; border-top: 1px dashed var(--line); }
+  .edit-panel.open { display: flex; flex-direction: column; gap: 10px; }
+
+  /* ---- name gate ---- */
+  .gate-backdrop { position: fixed; inset: 0; background: rgba(19,26,22,.55); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
+  .gate-card { background: var(--bg-raised); border-radius: 16px; padding: 24px; max-width: 380px; width: 100%; box-shadow: var(--shadow); border: 1px solid var(--line); max-height: 88vh; overflow-y: auto; }
+  .gate-card h2 { font-size: 22px; margin-bottom: 6px; }
+  .gate-card p { font-size: 13.5px; color: var(--ink-soft); margin: 0 0 16px; }
+  .name-pick { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .name-pick button { border: 1px solid var(--line); background: var(--bg); border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .name-pick button[data-on="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--bg)); color: var(--accent); }
+  .color-pick { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 16px; }
+  .swatch { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+  .swatch[data-on="true"] { border-color: var(--ink); }
+
+  .you-pill { display: flex; align-items: center; gap: 8px; margin-left: auto; border: 1px solid var(--line); background: var(--bg-raised); border-radius: 999px; padding: 4px 10px 4px 4px; font-size: 12.5px; font-weight: 600; cursor: pointer; flex: 0 0 auto; }
+  footer.note { text-align: center; color: var(--ink-soft); font-size: 12px; margin-top: 28px; }
+</style>
+</head>
+<body>
+
+<svg class="icon-defs" aria-hidden="true">
+  <symbol id="ic-itin" viewBox="0 0 24 24">
+    <circle cx="6" cy="6.5" r="2.4" stroke="currentColor" fill="none"/>
+    <circle cx="18" cy="17.5" r="2.4" stroke="currentColor" fill="none"/>
+    <path d="M8 7.8c2.8 1.3 5.2 6 7.8 8" stroke="currentColor" fill="none" stroke-dasharray="1 3.2"/>
+  </symbol>
+  <symbol id="ic-wish" viewBox="0 0 24 24">
+    <path d="M12 3l2.1 5.9L20 11l-5.9 2.1L12 19l-2.1-5.9L4 11l5.9-2.1z" stroke="currentColor" fill="none" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="ic-money" viewBox="0 0 24 24">
+    <rect x="2.5" y="6" width="19" height="13" rx="2.3" stroke="currentColor" fill="none"/>
+    <path d="M2.5 10h19" stroke="currentColor" fill="none"/>
+    <text x="12" y="16.6" text-anchor="middle" font-size="8.5" font-weight="700" fill="currentColor" font-family="Inter, sans-serif" stroke="none">₹</text>
+  </symbol>
+  <symbol id="ic-crew" viewBox="0 0 24 24">
+    <circle cx="9" cy="8.3" r="3.1" stroke="currentColor" fill="none"/>
+    <circle cx="16.7" cy="9.6" r="2.5" stroke="currentColor" fill="none"/>
+    <path d="M3.3 20.2c.4-4 3-6.7 5.7-6.7s5.3 2.7 5.7 6.7" stroke="currentColor" fill="none"/>
+    <path d="M14.6 14.4c1.9.3 3.7 2.3 4.1 5.5" stroke="currentColor" fill="none"/>
+  </symbol>
+</svg>
+
+<nav class="sidenav" role="tablist" aria-label="Sections">
+  <div class="sidenav-brand">S</div>
+  <button role="tab" data-tab="itin" class="sidenav-btn" aria-selected="true"><svg class="nav-icon"><use href="#ic-itin"></use></svg>Itinerary</button>
+  <button role="tab" data-tab="wishlist" class="sidenav-btn" aria-selected="false"><svg class="nav-icon"><use href="#ic-wish"></use></svg>Wishlist</button>
+  <button role="tab" data-tab="money" class="sidenav-btn" aria-selected="false"><svg class="nav-icon"><use href="#ic-money"></use></svg>Budget</button>
+  <button role="tab" data-tab="crew" class="sidenav-btn" aria-selected="false"><svg class="nav-icon"><use href="#ic-crew"></use></svg>Crew</button>
+</nav>
+
+<div class="wrap">
+  <header class="top">
+    <div class="hero">
+      <svg viewBox="0 0 800 220" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustrated dusk mountain skyline">
+        <defs>
+          <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="var(--hero-sky-top)"/>
+            <stop offset="100%" stop-color="var(--hero-sky-bottom)"/>
+          </linearGradient>
+          <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="var(--hero-sun)" stop-opacity="0.55"/>
+            <stop offset="100%" stop-color="var(--hero-sun)" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect width="800" height="220" fill="url(#skyGrad)"/>
+        <circle cx="640" cy="72" r="70" fill="url(#sunGlow)"/>
+        <circle cx="640" cy="72" r="30" fill="var(--hero-sun)"/>
+        <path d="M40 55l7-4 7 4M170 40l6-3.5 6 3.5M310 62l6-3.5 6 3.5" stroke="var(--hero-ink)" stroke-opacity=".4" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M0,150 L70,105 L150,135 L250,80 L340,120 L430,68 L520,112 L610,85 L700,125 L800,100 L800,220 L0,220 Z" fill="var(--hero-ridge-1)"/>
+        <path d="M0,178 L90,130 L190,165 L300,112 L400,160 L500,120 L600,168 L700,128 L800,155 L800,220 L0,220 Z" fill="var(--hero-ridge-2)"/>
+        <path d="M0,205 L110,168 L220,198 L340,155 L460,202 L580,160 L680,200 L800,178 L800,220 L0,220 Z" fill="var(--hero-ridge-3)"/>
+      </svg>
+      <div class="hero-content">
+        <div class="title-row">
+          <div>
+            <div class="eyebrow"><span class="dot"></span> Switchback &middot; 19&ndash;23 Sep</div>
+            <h1 class="brand">Dehradun &rarr; Mussoorie &rarr; <em>Nainital</em></h1>
+            <div class="route">
+              <span>Punto (Katu) + a rented Baleno</span><span class="arrow">&middot;</span>
+              <span>7 of you</span><span class="arrow">&middot;</span>
+              <span>1 shared wallet</span>
+            </div>
+          </div>
+          <button class="you-pill" id="youPill" type="button" title="Switch who you are">
+            <span class="avatar" id="youAvatar" style="width:20px;height:20px;font-size:9px;">?</span>
+            <span id="youLabel">Who are you?</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="nearby-banner" id="nearbyBanner">
+      <span class="txt" id="nearbyText"></span>
+      <button type="button" id="nearbyDismiss" title="Dismiss">&#10005;</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ITINERARY -->
+    <section class="panel active" id="panel-itin">
+      <div class="panel-head">
+        <h2>The plan, day by day</h2>
+        <p>The base route is locked. Anyone can pitch an add-on for a day &mdash; it needs a majority vote before it joins the plan.</p>
+      </div>
+
+      <div class="card route-card">
+        <h3 style="font-size:14px;font-weight:600;">The route, in order</h3>
+        <div class="route-legs" id="routeLegs"></div>
+        <div class="route-note" id="routeNote"></div>
+        <a class="nav-chip" id="routeNavAll" href="#" target="_blank" rel="noopener" style="margin-top:10px;">&#129517; Open full route in Maps</a>
+      </div>
+
+      <div class="day-tabs" id="dayTabs"></div>
+      <div class="card day-detail" id="dayDetail"></div>
+      <div class="card must-visit" id="mustVisit"></div>
+
+      <div class="sugg-head">
+        <h3 id="suggDayLabel">Suggestions for this day</h3>
+        <span id="suggCount"></span>
+      </div>
+      <div class="card add-form">
+        <div class="stack">
+          <div class="grid2">
+            <div class="field">
+              <label for="ideaTitle">Add-on idea</label>
+              <input type="text" id="ideaTitle" placeholder="e.g. Rajaji safari on the way" maxlength="80" />
+            </div>
+            <div class="field">
+              <label for="ideaCat">Type</label>
+              <select id="ideaCat">
+                <option value="see">See</option>
+                <option value="do">Do</option>
+                <option value="eat">Eat</option>
+                <option value="stay">Stay</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid2">
+            <div class="field">
+              <label for="ideaNote">Why (optional)</label>
+              <input type="text" id="ideaNote" placeholder="e.g. it's basically on the route" maxlength="140" />
+            </div>
+            <div class="field">
+              <label for="ideaPlace">Place name (for navigation)</label>
+              <input type="text" id="ideaPlace" placeholder="e.g. Robber's Cave, Dehradun" maxlength="80" />
+            </div>
+          </div>
+          <button class="btn accent" id="addIdeaBtn" type="button">Put it to a vote</button>
+        </div>
+      </div>
+      <div class="stack" id="ideaList"></div>
+    </section>
+
+    <!-- WISHLIST -->
+    <section class="panel" id="panel-wishlist">
+      <div class="panel-head">
+        <h2>The bucket list</h2>
+        <p>Anyone can add a wish, tag it to a stop, vote, comment, or attach a link. Tick it off once the group's actually done it.</p>
+      </div>
+      <div class="card add-form">
+        <div class="stack">
+          <div class="grid2">
+            <div class="field">
+              <label for="wlTitle">Wish</label>
+              <input type="text" id="wlTitle" placeholder="e.g. Paragliding above Nainital" maxlength="80" />
+            </div>
+            <div class="field">
+              <label for="wlStopSel">Where</label>
+              <select id="wlStopSel"></select>
+            </div>
+          </div>
+          <div class="grid2">
+            <div class="field">
+              <label for="wlDate">Date (optional)</label>
+              <input type="date" id="wlDate" />
+            </div>
+            <div class="field">
+              <label for="wlTime">Time (optional)</label>
+              <input type="text" id="wlTime" placeholder="e.g. 6:00 AM" maxlength="20" />
+            </div>
+          </div>
+          <div class="grid2">
+            <div class="field">
+              <label for="wlPlace">Place name (for navigation, optional)</label>
+              <input type="text" id="wlPlace" placeholder="e.g. Naina Peak" maxlength="80" />
+            </div>
+            <div class="field">
+              <label for="wlLink">Link (optional &mdash; Insta, Maps, article&hellip;)</label>
+              <input type="text" id="wlLink" placeholder="https://&hellip;" maxlength="300" />
+            </div>
+          </div>
+          <button class="btn accent" id="wlAddBtn" type="button">Add to the bucket list</button>
+        </div>
+      </div>
+      <div class="row" style="margin-bottom:14px;align-items:center;">
+        <div class="wl-filters" id="wlFilters"></div>
+        <select id="wlOwnerSel" style="max-width:180px;"></select>
+      </div>
+      <div class="stack" id="wlList"></div>
+    </section>
+
+    <!-- MONEY -->
+    <section class="panel" id="panel-money">
+      <div class="panel-head">
+        <h2>The shared wallet</h2>
+        <p>Set your own budget, log what you paid for &mdash; Switchback works out who owes whom in the fewest transfers, and flags anyone running hot.</p>
+      </div>
+      <div class="stat-row">
+        <div class="card stat"><div class="k">Trip total spent</div><div class="v num" id="statTotal">&#8377;0</div></div>
+        <div class="card stat"><div class="k">Planned (all 7)</div><div class="v num" id="statPlanned">&#8377;0</div></div>
+        <div class="card stat"><div class="k">Your balance</div><div class="v num" id="statYou">&#8377;0</div></div>
+      </div>
+
+      <div class="seg-toggle" id="moneySeg">
+        <button type="button" data-seg="overview" aria-selected="true">Overview</button>
+        <button type="button" data-seg="calc" aria-selected="false">How it's calculated</button>
+      </div>
+
+      <div id="moneyOverview">
+        <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin:4px 0 8px;">Budget vs. spend, per person</h3>
+        <p style="font-size:12px;color:var(--ink-soft);margin:0 0 10px;">Everyone's spend is visible (it's the shared ledger) &mdash; but each person's target budget stays private to them unless they choose to reveal it.</p>
+        <div class="budget-bars" id="budgetBars"></div>
+      </div>
+
+      <div class="card calc-card" id="calcCard">
+        <h3>Where the estimate came from</h3>
+        <p>Built as a mid-range 5-day / 4-night hill-trip budget: shared stay, food, local transport/fuel and activities, plus an evening-drinks allowance for the six of you who drink (not applied to Bharath), and a 10% buffer on top. Travel to and from Dehradun/Rishikesh is on top of this and different for everyone &mdash; only Bharath's is filled in so far (₹5,000 train + ₹8,300 flight).</p>
+        <table class="calc-table">
+          <thead><tr><th>Category</th><th class="amt">Per person</th></tr></thead>
+          <tbody>
+            <tr><td>Stay (4 nights, shared rooms)</td><td class="amt num">₹4,800</td></tr>
+            <tr><td>Food (5 days)</td><td class="amt num">₹3,000</td></tr>
+            <tr><td>Local transport / fuel / tolls</td><td class="amt num">₹1,500</td></tr>
+            <tr><td>Activities &amp; entry fees</td><td class="amt num">₹800</td></tr>
+            <tr><td>Evening drinks (6 of you, not Bharath)</td><td class="amt num">₹2,000</td></tr>
+            <tr><td>+10% buffer</td><td class="amt num">rounds up</td></tr>
+            <tr class="calc-total-row"><td>Trip-local total &mdash; drinkers</td><td class="amt num">₹13,300</td></tr>
+            <tr class="calc-total-row"><td>Trip-local total &mdash; Bharath (no alcohol)</td><td class="amt num">₹11,100</td></tr>
+          </tbody>
+        </table>
+        <p>These are starting numbers, not the truth &mdash; anyone can change their own in the Overview tab, and it'll recalculate everyone's balance instantly.</p>
+      </div>
+
+      <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin:18px 0 8px;">By category</h3>
+      <div class="card" style="padding:14px;">
+        <div class="cat-bars" id="catBars"></div>
+      </div>
+
+      <div class="card add-form" style="margin-top:18px;">
+        <div class="stack">
+          <div class="grid2">
+            <div class="field">
+              <label for="expDesc">What was it</label>
+              <input type="text" id="expDesc" placeholder="e.g. Cab, Dehradun &rarr; Mussoorie" maxlength="80" />
+            </div>
+            <div class="field">
+              <label for="expAmt">Amount (&#8377;)</label>
+              <input type="number" id="expAmt" placeholder="1800" min="0" step="1" />
+            </div>
+          </div>
+          <div class="grid2">
+            <div class="field">
+              <label for="expCat">Category</label>
+              <select id="expCat">
+                <option value="transport">Transport</option>
+                <option value="stay">Stay</option>
+                <option value="food">Food</option>
+                <option value="activity">Activities</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="expDate">Date</label>
+              <input type="date" id="expDate" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Split between</label>
+            <div class="split-chips" id="splitChips"></div>
+          </div>
+          <button class="btn accent" id="addExpBtn" type="button">Add expense</button>
+        </div>
+      </div>
+
+      <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin:18px 0 8px;">Who pays whom</h3>
+      <div class="stack" id="settleList"></div>
+      <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin:18px 0 8px;">Ledger</h3>
+      <div class="stack" id="expenseList"></div>
+    </section>
+
+    <!-- CREW -->
+    <section class="panel" id="panel-crew">
+      <div class="panel-head">
+        <h2>Who's actually coming</h2>
+        <p>Your profile and your photo folder are visible to the crew. Your budget target stays private &mdash; see the Wishlist tab for everyone's wishes.</p>
+      </div>
+      <div class="car-row">
+        <div class="card car-card">
+          <div class="car-head"><span>&#128663; Punto &middot; Katu's</span><span class="seats" id="puntoSeats">0/4</span></div>
+          <div class="car-seats" id="puntoSeatList"></div>
+          <button class="car-join" id="joinPunto" type="button">Ride in the Punto</button>
+        </div>
+        <div class="card car-card">
+          <div class="car-head"><span>&#128663; Baleno &middot; rented</span><span class="seats" id="balenoSeats">0/5</span></div>
+          <div class="car-seats" id="balenoSeatList"></div>
+          <button class="car-join" id="joinBaleno" type="button">Ride in the Baleno</button>
+        </div>
+      </div>
+      <div class="card" style="padding:12px 14px;margin-bottom:16px;">
+        <div class="drive-link">&#128193; <a id="driveParentLink" href="#" target="_blank" rel="noopener">Shared trip photo drive</a> &mdash; everyone's folders live inside</div>
+      </div>
+      <div class="stack" id="crewList"></div>
+    </section>
+  </main>
+
+  <footer class="note">Open on everyone's phone &mdash; no login, no app, one link. Changes sync live.</footer>
+</div>
+
+<nav class="bottomnav" role="tablist" aria-label="Sections">
+  <button role="tab" data-tab="itin" class="bottomnav-btn" aria-selected="true"><svg class="nav-icon"><use href="#ic-itin"></use></svg>Itinerary</button>
+  <button role="tab" data-tab="wishlist" class="bottomnav-btn" aria-selected="false"><svg class="nav-icon"><use href="#ic-wish"></use></svg>Wishlist</button>
+  <button role="tab" data-tab="money" class="bottomnav-btn" aria-selected="false"><svg class="nav-icon"><use href="#ic-money"></use></svg>Budget</button>
+  <button role="tab" data-tab="crew" class="bottomnav-btn" aria-selected="false"><svg class="nav-icon"><use href="#ic-crew"></use></svg>Crew</button>
+</nav>
+
+<div class="gate-backdrop" id="gateBackdrop">
+  <div class="gate-card">
+    <h2>Who's this?</h2>
+    <p>Pick your name so votes, expenses and wishlist items are tagged as yours. Stored on this device.</p>
+    <div class="name-pick" id="namePick"></div>
+    <div class="field">
+      <label for="gateName">Not listed / different name</label>
+      <input type="text" id="gateName" placeholder="Type a name" maxlength="24" />
+    </div>
+    <div class="color-pick" id="colorPick"></div>
+    <button class="btn accent" id="gateSaveBtn" type="button" style="width:100%;">I'm in</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function () {
+  "use strict";
+
+  // ---- Supabase project config ----
+  // Fill these in from Project Settings -> API in your Supabase project.
+  // The anon key is safe to expose client-side -- access control is done
+  // via the database's row-level security policies, not key secrecy.
+  var SUPABASE_URL = "REPLACE_WITH_SUPABASE_PROJECT_URL";
+  var SUPABASE_ANON_KEY = "REPLACE_WITH_SUPABASE_ANON_KEY";
+
+  var PALETTE = ["#c96a34","#3d6357","#b8862e","#7a5cad","#3d7ea6","#a3402f","#5c8a3d","#af5a86"];
+  var CATS = { see: "See", do: "Do", eat: "Eat", stay: "Stay" };
+  var CAT_LABELS = { transport: "Transport", stay: "Stay", food: "Food", activity: "Activities", other: "Other" };
+  var CAT_COLORS = { transport: "#3d7ea6", stay: "#3d6357", food: "#c96a34", activity: "#b8862e", other: "#7a5cad" };
+
+  var CREW_SEED = ["Dul", "Jo", "VP", "PM", "Bindu", "Katu", "Bharath"];
+
+  var STOPS = {
+    dehradun: { label: "Dehradun", lat: 30.3165, lon: 78.0322 },
+    mussoorie: { label: "Mussoorie", lat: 30.4598, lon: 78.0644 },
+    landour: { label: "Landour", lat: 30.4629, lon: 78.0762 },
+    haridwar: { label: "Haridwar", lat: 29.9457, lon: 78.1642 },
+    nainital: { label: "Nainital", lat: 29.3803, lon: 79.4636 },
+    bhimtal: { label: "Bhimtal", lat: 29.3487, lon: 79.5647 },
+    rishikesh: { label: "Rishikesh", lat: 30.0869, lon: 78.2676 }
+  };
+
+  var DRIVE_LINKS = {
+    parent: "https://drive.google.com/drive/folders/1YVdLXHC0tO0vby-BLwzXnvIvdAzsmDKS",
+    Dul: "https://drive.google.com/drive/folders/1riamQ3hJp6w_aeDh2zmublMqk2Z6fKaJ",
+    Jo: "https://drive.google.com/drive/folders/1Ws42yds8XtIyPvO6WE2nAs3pU5Xei38q",
+    VP: "https://drive.google.com/drive/folders/1iKcYNvkhOmLlr7ESV4rL19_t4rVm_KkZ",
+    PM: "https://drive.google.com/drive/folders/1g-ZsH45u-M5Zoz21iZXfx2NZ6Q1MW1qA",
+    Bindu: "https://drive.google.com/drive/folders/1SLFqEcG8OIHrc7tgosL6omM_ChWW2Ibl",
+    Katu: "https://drive.google.com/drive/folders/1kyLFpEBEZaiGuqmlTkx1DScDlBN13_Mj",
+    Bharath: "https://drive.google.com/drive/folders/12rCa8HLUbls6OWyzqsw7mYI31sIWSyqg"
+  };
+
+  var DAYS = [
+    { id: "day1", date: "Fri, 19 Sep", city: "Dehradun → Mussoorie & Landour", stay: "Mussoorie / Landour", stops: ["dehradun","mussoorie","landour"],
+      items: [
+        { t: "10:00 AM", x: "Dul, Jo, VP, PM & Bindu land in Dehradun.", p: "Dehradun Airport / Railway Station" },
+        { t: "11:00 AM", x: "Katu & Bharath meet the group with the Punto.", p: "Dehradun" },
+        { t: "11:30 AM", x: "Pick up the rented Baleno.", p: "Dehradun car rental" },
+        { t: "12:00 PM", x: "Drive up to Mussoorie (~1.5 hr).", p: "Mussoorie" },
+        { t: "2:00 PM", x: "Check in, lunch in Mussoorie.", p: "Mussoorie hotels" },
+        { t: "4:00 PM", x: "Explore Camel's Back Road / Gun Hill.", p: "Camel's Back Road, Mussoorie" },
+        { t: "7:00 PM", x: "Dinner + Mall Road stroll.", p: "Mall Road, Mussoorie" },
+        { t: "9:00 PM", x: "Landour night walk (optional).", p: "Landour" }
+      ] },
+    { id: "day2", date: "Sat, 20 Sep", city: "Mussoorie & Landour → Haridwar → Nainital", stay: "Nainital", stops: ["mussoorie","landour","haridwar","nainital"],
+      items: [
+        { t: "8:00 AM", x: "Breakfast, pack up.", p: "Mussoorie" },
+        { t: "9:00 AM", x: "Landour walk: Char Dukan, Landour Bakehouse.", p: "Char Dukan, Landour" },
+        { t: "11:00 AM", x: "Depart for Haridwar (~3 hr).", p: "Haridwar" },
+        { t: "2:00 PM", x: "Lunch in Haridwar.", p: "Haridwar" },
+        { t: "3:30 PM", x: "Mansa Devi ropeway (optional).", p: "Mansa Devi Temple, Haridwar" },
+        { t: "6:30 PM", x: "Ganga Aarti at Har Ki Pauri.", p: "Har Ki Pauri, Haridwar" },
+        { t: "8:00 PM", x: "Depart for Nainital (~6 hr).", p: "Nainital" },
+        { t: "~2:00 AM", x: "Long overnight leg — swap drivers, rest stop near Kathgodam if anyone's flagging.", p: "Kathgodam", warn: true }
+      ] },
+    { id: "day3", date: "Sun, 21 Sep", city: "Nainital & Bhimtal", stay: "Nainital", stops: ["nainital","bhimtal"],
+      items: [
+        { t: "10:00 AM", x: "Late start after the long drive — breakfast.", p: "Nainital" },
+        { t: "11:30 AM", x: "Naini Lake boating.", p: "Naini Lake, Nainital" },
+        { t: "1:00 PM", x: "Lunch on Mall Road.", p: "Mall Road, Nainital" },
+        { t: "2:30 PM", x: "Snow View Point ropeway.", p: "Snow View Point, Nainital" },
+        { t: "4:00 PM", x: "Drive to Bhimtal (~45 min).", p: "Bhimtal" },
+        { t: "5:00 PM", x: "Bhimtal Lake + aquarium island.", p: "Bhimtal Lake" },
+        { t: "7:30 PM", x: "Back to Nainital, dinner.", p: "Nainital" }
+      ] },
+    { id: "day4", date: "Mon, 22 Sep", city: "Nainital & Bhimtal → Rishikesh", stay: "Rishikesh", stops: ["nainital","bhimtal","rishikesh"],
+      items: [
+        { t: "9:00 AM", x: "Tiffin Top trek.", p: "Tiffin Top, Nainital" },
+        { t: "12:00 PM", x: "Naina Devi Temple + lunch.", p: "Naina Devi Temple, Nainital" },
+        { t: "3:00 PM", x: "Free time / Mall Road shopping.", p: "Mall Road, Nainital" },
+        { t: "6:00 PM", x: "Early dinner.", p: "Nainital" },
+        { t: "7:00 PM", x: "Depart for Rishikesh, late evening (~7 hr).", p: "Rishikesh" },
+        { t: "~2:00 AM", x: "Another long leg back-to-back — consider splitting the drive if anyone's exhausted.", p: "Rishikesh", warn: true }
+      ] },
+    { id: "day5", date: "Tue, 23 Sep", city: "Rishikesh", stay: "Rishikesh (last day)", stops: ["rishikesh"],
+      items: [
+        { t: "10:00 AM", x: "Late breakfast.", p: "Rishikesh" },
+        { t: "11:30 AM", x: "Laxman Jhula & Ram Jhula walk.", p: "Laxman Jhula, Rishikesh" },
+        { t: "1:00 PM", x: "Lunch by the Ganga.", p: "Rishikesh" },
+        { t: "3:00 PM", x: "Free time / cafes / shopping.", p: "Rishikesh" },
+        { t: "5:00 PM", x: "Triveni Ghat Aarti.", p: "Triveni Ghat, Rishikesh" },
+        { t: "7:00 PM", x: "Jo and Bindu head home from Rishikesh.", p: "Rishikesh" }
+      ] }
+  ];
+
+  var MUST_VISIT = {
+    dehradun: [ { t: "Robber's Cave (Guchhupani)" }, { t: "Forest Research Institute" }, { t: "Sahastradhara", gem: true } ],
+    mussoorie: [ { t: "Gun Hill" }, { t: "Kempty Falls" }, { t: "Camel's Back Road" }, { t: "Lal Tibba viewpoint", gem: true } ],
+    landour: [ { t: "Char Dukan" }, { t: "Landour Bakehouse" }, { t: "St. Paul's Church" }, { t: "Landour Clock Tower", gem: true } ],
+    haridwar: [ { t: "Har Ki Pauri Ganga Aarti" }, { t: "Mansa Devi Temple (ropeway)" }, { t: "Chandi Devi Temple", gem: true } ],
+    nainital: [ { t: "Naini Lake boating" }, { t: "Naina Devi Temple" }, { t: "Snow View Point (ropeway)" }, { t: "Tiffin Top" }, { t: "Mall Road" } ],
+    bhimtal: [ { t: "Bhimtal Lake + aquarium island" }, { t: "Victoria Dam" }, { t: "Gaanth / Bhimtal offbeat viewpoint", gem: true } ],
+    rishikesh: [ { t: "Laxman Jhula & Ram Jhula" }, { t: "Triveni Ghat Aarti" }, { t: "Beatles Ashram", gem: true }, { t: "Neer Garh Waterfall", gem: true } ]
+  };
+  var ROUTE_ORDER = ["dehradun","mussoorie","landour","haridwar","nainital","bhimtal","rishikesh"];
+  var ROUTE_LEGS = [
+    { km: 35, hr: "1.5 hr" }, { km: 8, hr: "20 min" }, { km: 95, hr: "3 hr" },
+    { km: 210, hr: "6 hr" }, { km: 22, hr: "45 min" }, { km: 230, hr: "7 hr" }
+  ];
+  function mapsSearchUrl(place) { return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(place + ", Uttarakhand, India"); }
+  function mapsRouteUrl() { return "https://www.google.com/maps/dir/" + ROUTE_ORDER.map(function (k) { return encodeURIComponent(STOPS[k].label + ", Uttarakhand"); }).join("/"); }
+
+  function colorFor(name) {
+    var stored = null;
+    try { stored = JSON.parse(localStorage.getItem("sb_members") || "{}")[name]; } catch (e) {}
+    if (stored) return stored;
+    var h = 0;
+    for (var i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+    return PALETTE[h % PALETTE.length];
+  }
+  function initials(name) { return (name || "?").trim().split(/\s+/).slice(0,2).map(function (w) { return w[0]; }).join("").toUpperCase(); }
+  function fmtRupee(n) { n = Math.round(n || 0); return "₹" + n.toLocaleString("en-IN"); }
+  function esc(s) { var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
+  function slug(s) { return (s || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "anon"; }
+  function haversine(lat1, lon1, lat2, lon2) {
+    var R = 6371, dLat = (lat2 - lat1) * Math.PI / 180, dLon = (lon2 - lon1) * Math.PI / 180;
+    var a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+
+  // ---- identity ----
+  var ME = localStorage.getItem("sb_me") || "";
+  var MY_COLOR = localStorage.getItem("sb_me_color") || PALETTE[0];
+  var pickedGateName = ME;
+
+  function paintYouPill() {
+    document.getElementById("youAvatar").style.background = MY_COLOR;
+    document.getElementById("youAvatar").textContent = ME ? initials(ME) : "?";
+    document.getElementById("youLabel").textContent = ME || "Who are you?";
+  }
+  function renderNamePick() {
+    var wrap = document.getElementById("namePick");
+    wrap.innerHTML = "";
+    CREW_SEED.forEach(function (n) {
+      var b = document.createElement("button");
+      b.type = "button"; b.textContent = n;
+      b.dataset.on = String(n === pickedGateName);
+      b.addEventListener("click", function () {
+        pickedGateName = n;
+        document.getElementById("gateName").value = "";
+        MY_COLOR = colorFor(n);
+        renderNamePick(); renderColorPick();
+      });
+      wrap.appendChild(b);
+    });
+  }
+  function openGate() {
+    document.getElementById("gateBackdrop").style.display = "flex";
+    pickedGateName = ME;
+    document.getElementById("gateName").value = CREW_SEED.indexOf(ME) === -1 ? ME : "";
+    renderNamePick(); renderColorPick();
+  }
+  function closeGate() { document.getElementById("gateBackdrop").style.display = "none"; }
+  function renderColorPick() {
+    var wrap = document.getElementById("colorPick");
+    wrap.innerHTML = "";
+    PALETTE.forEach(function (c) {
+      var sw = document.createElement("div");
+      sw.className = "swatch"; sw.style.background = c; sw.dataset.on = String(c === MY_COLOR);
+      sw.addEventListener("click", function () {
+        MY_COLOR = c;
+        Array.prototype.forEach.call(wrap.children, function (el) { el.dataset.on = "false"; });
+        sw.dataset.on = "true";
+      });
+      wrap.appendChild(sw);
+    });
+  }
+  document.getElementById("youPill").addEventListener("click", openGate);
+  document.getElementById("gateName").addEventListener("input", function () { pickedGateName = null; renderNamePick(); });
+  document.getElementById("gateSaveBtn").addEventListener("click", function () {
+    var typed = document.getElementById("gateName").value.trim();
+    var v = typed || pickedGateName;
+    if (!v) { document.getElementById("gateName").focus(); return; }
+    ME = v.slice(0, 24);
+    MY_COLOR = MY_COLOR || PALETTE[0];
+    localStorage.setItem("sb_me", ME);
+    localStorage.setItem("sb_me_color", MY_COLOR);
+    paintYouPill(); closeGate();
+    if (db) db.doc("members/" + slug(ME)).set(Object.assign({ name: ME, color: MY_COLOR, joinedAt: Date.now() }, STATE.members[slug(ME)] || {})).catch(function () {});
+    render();
+  });
+  if (!ME) openGate();
+  paintYouPill();
+
+  // ---- tabs ----
+  var tabs = document.querySelectorAll("[data-tab]");
+  function activateTab(tabName) {
+    tabs.forEach(function (b) { b.setAttribute("aria-selected", String(b.dataset.tab === tabName)); });
+    document.querySelectorAll("section.panel").forEach(function (p) { p.classList.remove("active"); });
+    document.getElementById("panel-" + tabName).classList.add("active");
+    if (tabName === "money" && expensePrefill) {
+      document.getElementById("expDesc").value = expensePrefill;
+      document.getElementById("expDesc").focus();
+      expensePrefill = null;
+    }
+  }
+  tabs.forEach(function (btn) {
+    btn.addEventListener("click", function () { activateTab(btn.dataset.tab); });
+  });
+
+  document.getElementById("driveParentLink").href = DRIVE_LINKS.parent;
+
+  document.querySelectorAll("#moneySeg button").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.querySelectorAll("#moneySeg button").forEach(function (b) { b.setAttribute("aria-selected", "false"); });
+      btn.setAttribute("aria-selected", "true");
+      var isCalc = btn.dataset.seg === "calc";
+      document.getElementById("moneyOverview").style.display = isCalc ? "none" : "block";
+      document.getElementById("calcCard").classList.toggle("show", isCalc);
+    });
+  });
+
+  // ---- state ----
+  var STATE = { members: {}, days: {}, suggestions: {}, expenses: [], wishlist: [], itemInfo: {} };
+  var openItems = {};
+  var expensePrefill = null;
+  var db = null;
+  var activeDay = DAYS[0].id;
+  var dismissedNudges = {};
+  try { dismissedNudges = JSON.parse(localStorage.getItem("sb_dismissed") || "{}"); } catch (e) {}
+
+  function allNames() {
+    var set = {};
+    CREW_SEED.forEach(function (n) { set[n] = true; });
+    Object.keys(STATE.members).forEach(function (k) { if (STATE.members[k].name) set[STATE.members[k].name] = true; });
+    if (ME) set[ME] = true;
+    return Object.keys(set).sort();
+  }
+  function memberFor(name) { return STATE.members[slug(name)] || { name: name, color: colorFor(name) }; }
+  function myDoc() { return STATE.members[slug(ME)] || {}; }
+
+  // ============ ITINERARY ============
+  function renderRoute() {
+    var wrap = document.getElementById("routeLegs");
+    wrap.innerHTML = "";
+    ROUTE_ORDER.forEach(function (k, i) {
+      var stopEl = document.createElement("span");
+      stopEl.className = "route-stop"; stopEl.textContent = STOPS[k].label;
+      wrap.appendChild(stopEl);
+      if (i < ROUTE_ORDER.length - 1) {
+        var leg = ROUTE_LEGS[i];
+        var legEl = document.createElement("span"); legEl.className = "route-leg";
+        legEl.innerHTML = '<span class="ln"></span>' + leg.km + "km &middot; " + leg.hr;
+        wrap.appendChild(legEl);
+      }
+    });
+    document.getElementById("routeNote").textContent = "Haridwar sits on the way down from the hills, and Rishikesh is close to it on the way back — this order avoids doubling back across Uttarakhand, which is where most trips waste fuel.";
+    document.getElementById("routeNavAll").href = mapsRouteUrl();
+  }
+  function renderMustVisit() {
+    var d = DAYS.find(function (x) { return x.id === activeDay; });
+    var wrap = document.getElementById("mustVisit");
+    var items = [];
+    (d.stops || []).forEach(function (k) { (MUST_VISIT[k] || []).forEach(function (m) { items.push(Object.assign({ stop: k }, m)); }); });
+    wrap.innerHTML = '<h3>Must-visit &amp; hidden gems near today</h3><div class="sub">Curated from what\'s well known about these spots — not live data, worth double-checking timings.</div>' +
+      '<div class="mv-list">' + items.map(function (m) {
+        return '<div class="mv-item"><span>' + esc(m.t) + (m.gem ? '<span class="mv-gem">Hidden gem</span>' : "") + '</span><a class="nav-chip" href="' + mapsSearchUrl(m.t) + '" target="_blank" rel="noopener">&#129517; Go</a></div>';
+      }).join("") + "</div>";
+  }
+  function renderDayTabs() {
+    var wrap = document.getElementById("dayTabs");
+    wrap.innerHTML = "";
+    DAYS.forEach(function (d) {
+      var b = document.createElement("button");
+      b.className = "day-chip"; b.type = "button";
+      b.setAttribute("aria-selected", String(d.id === activeDay));
+      b.innerHTML = '<div class="dnum">' + esc(d.date) + '</div><div class="dcity">' + esc(d.stay) + "</div>";
+      b.addEventListener("click", function () { activeDay = d.id; renderDayTabs(); renderDayDetail(); renderMustVisit(); renderIdeas(); });
+      wrap.appendChild(b);
+    });
+  }
+  function renderDayDetail() {
+    var d = DAYS.find(function (x) { return x.id === activeDay; });
+    var wrap = document.getElementById("dayDetail");
+    wrap.innerHTML =
+      '<div class="dtitle">' + esc(d.date) + "</div>" +
+      '<div class="dsub">' + esc(d.city) + "</div>" +
+      '<span class="stay-tag">&#127968; Staying in ' + esc(d.stay) + '</span>' +
+      '<a class="nav-chip" style="margin-left:8px;" href="' + mapsSearchUrl(d.stay + " hotels") + '" target="_blank" rel="noopener">&#129517; Navigate</a>';
+    var ul = document.createElement("ul");
+    ul.className = "plan-list";
+    d.items.forEach(function (it, idx) {
+      var itemId = d.id + "-" + idx;
+      var li = document.createElement("li");
+      li.className = "plan-item" + (it.warn ? " warn" : "") + (openItems[itemId] ? " open" : "");
+      var row = document.createElement("div");
+      row.className = "plan-row";
+      row.innerHTML = '<span class="plan-time">' + esc(it.t) + '</span><span>' + (it.warn ? "⚠️ " : "") + esc(it.x) + '</span><span class="plan-chev">&#9654;</span>';
+      row.addEventListener("click", function () {
+        openItems[itemId] = !openItems[itemId];
+        li.classList.toggle("open", openItems[itemId]);
+      });
+      li.appendChild(row);
+      li.appendChild(buildItemDetail(itemId, it));
+      ul.appendChild(li);
+    });
+    wrap.appendChild(ul);
+    document.getElementById("suggDayLabel").textContent = "Suggestions for " + d.date;
+  }
+  function buildItemDetail(itemId, it) {
+    var info = STATE.itemInfo[itemId] || {};
+    var det = document.createElement("div");
+    det.className = "plan-detail";
+    var linkedBills = (info.billIds || []).map(function (bid) { return STATE.expenses.find(function (e) { return e.id === bid; }); }).filter(Boolean);
+    det.innerHTML =
+      '<a class="nav-chip" href="' + mapsSearchUrl(it.p || it.x) + '" target="_blank" rel="noopener">&#129517; Navigate to ' + esc(it.p || it.x) + '</a>' +
+      '<div><div class="plan-detail-label">Point of contact</div><div class="poc-display" data-pocview="' + itemId + '">' +
+        (info.poc || info.phone ? (esc(info.poc || "Contact") + (info.phone ? ' &middot; <a href="tel:' + esc(info.phone) + '">📞 ' + esc(info.phone) + "</a>" : "")) : '<span style="color:var(--ink-soft);">Not added yet</span>') +
+        ' <button class="btn ghost sm" type="button" data-pocedit="' + itemId + '">' + (info.poc || info.phone ? "Edit" : "Add") + "</button></div>" +
+        '<div class="poc-row" data-pocform="' + itemId + '" style="display:none;margin-top:6px;">' +
+          '<input type="text" placeholder="Name (hotel, cab driver…)" data-pocname="' + itemId + '" value="' + esc(info.poc || "") + '" maxlength="40" />' +
+          '<input type="tel" placeholder="Phone" data-pocphone="' + itemId + '" value="' + esc(info.phone || "") + '" maxlength="20" />' +
+          '<button class="btn accent sm" type="button" data-pocsave="' + itemId + '">Save</button>' +
+        "</div></div>" +
+      '<div><div class="plan-detail-label">Bill</div>' +
+        (linkedBills.length ? linkedBills.map(function (e) { return '<div class="bill-chip"><span>' + esc(e.desc) + " — " + esc(e.paidBy) + ' paid</span><span style="display:flex;align-items:center;gap:8px;"><span class="num">' + fmtRupee(e.amount) + '</span><button class="bill-unlink" type="button" data-unlink="' + itemId + '|' + e.id + '" title="Unlink">✕</button></span></div>'; }).join("") : '<div style="color:var(--ink-soft);font-size:12px;">No bill linked yet.</div>') +
+        '<div class="row" style="margin-top:6px;">' +
+          '<select data-linksel="' + itemId + '" style="flex:1;min-width:140px;"><option value="">Link an existing expense…</option>' + STATE.expenses.filter(function (e) { return (info.billIds || []).indexOf(e.id) === -1; }).map(function (e) { return '<option value="' + e.id + '">' + esc(e.desc) + " (" + fmtRupee(e.amount) + ")</option>"; }).join("") + '</select>' +
+          '<button class="btn ghost sm" type="button" data-logbill="' + itemId + '" data-desc="' + esc(it.x) + '">+ Log a new expense here</button>' +
+        "</div></div>";
+    var pocBtn = det.querySelector('[data-pocedit]');
+    pocBtn.addEventListener("click", function () {
+      var form = det.querySelector('[data-pocform]'); form.style.display = form.style.display === "none" ? "flex" : "none";
+    });
+    det.querySelector('[data-pocsave]').addEventListener("click", function () {
+      if (!ME) return openGate();
+      var poc = det.querySelector('[data-pocname]').value.trim();
+      var phone = det.querySelector('[data-pocphone]').value.trim();
+      if (db) db.doc("itemInfo/" + itemId).set({ poc: poc, phone: phone, billIds: info.billIds || [] }).catch(function () {});
+    });
+    det.querySelectorAll('[data-unlink]').forEach(function (b) {
+      b.addEventListener("click", function () {
+        var parts = b.dataset.unlink.split("|");
+        var next = (info.billIds || []).filter(function (id) { return id !== parts[1]; });
+        if (db) db.doc("itemInfo/" + itemId).set({ poc: info.poc || "", phone: info.phone || "", billIds: next }).catch(function () {});
+      });
+    });
+    var sel = det.querySelector('[data-linksel]');
+    sel.addEventListener("change", function () {
+      if (!sel.value) return;
+      var next = (info.billIds || []).concat([sel.value]);
+      if (db) db.doc("itemInfo/" + itemId).set({ poc: info.poc || "", phone: info.phone || "", billIds: next }).catch(function () {});
+    });
+    det.querySelector('[data-logbill]').addEventListener("click", function () {
+      expensePrefill = it.x;
+      activateTab("money");
+    });
+    return det;
+  }
+  function scoreOf(votes) {
+    votes = votes || {}; var s = 0;
+    Object.keys(votes).forEach(function (n) { if (votes[n] === "yes") s += 2; else if (votes[n] === "maybe") s += 1; else if (votes[n] === "no") s -= 1; });
+    return s;
+  }
+  function btnHtml(kind, icon, current) {
+    var label = kind === "yes" ? "In" : kind === "maybe" ? "Maybe" : "Pass";
+    return '<button type="button" class="vote-btn ' + kind + '" data-kind="' + kind + '" data-active="' + (current === kind) + '">' + icon + " " + label + "</button>";
+  }
+  var ideaOpenComments = {};
+  function renderIdeas() {
+    var list = document.getElementById("ideaList");
+    var names = allNames();
+    var majority = Math.max(2, Math.ceil(names.length / 2));
+    var all = STATE.suggestions[activeDay] || [];
+    document.getElementById("suggCount").textContent = all.length ? all.length + " pitched" : "";
+    var items = all.slice().sort(function (a, b) { return scoreOf(b.votes) - scoreOf(a.votes); });
+    if (!items.length) { list.innerHTML = '<div class="empty">No add-ons pitched for this day yet.</div>'; return; }
+    list.innerHTML = "";
+    items.forEach(function (p) {
+      var votes = p.votes || {};
+      var yesCount = Object.keys(votes).filter(function (n) { return votes[n] === "yes"; }).length;
+      var locked = yesCount >= majority;
+      var voters = Object.keys(votes).filter(function (n) { return votes[n] === "yes"; });
+      var comments = p.comments || [];
+      var card = document.createElement("div");
+      card.className = "card idea" + (locked ? " locked" : "");
+      card.innerHTML =
+        '<div class="idea-top"><div><div class="idea-title">' + esc(p.title) + "</div>" +
+          (p.note ? '<div class="idea-note">' + esc(p.note) + "</div>" : "") +
+          '<a class="nav-chip" style="margin-top:6px;display:inline-flex;" href="' + mapsSearchUrl(p.place || p.title) + '" target="_blank" rel="noopener">&#129517; Navigate</a></div>' +
+          '<span class="chip ' + esc(p.category) + '" style="font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--pine-soft);color:var(--pine);white-space:nowrap;">' + esc(CATS[p.category] || p.category) + "</span></div>" +
+        '<div class="idea-bottom"><div class="vote-btns">' + btnHtml("yes","🔥",votes[ME]) + btnHtml("maybe","🤔",votes[ME]) + btnHtml("no","❌",votes[ME]) + "</div>" +
+          '<div style="display:flex;align-items:center;gap:8px;">' +
+            (locked ? '<span class="locked-tag">✓ Locked in</span>' : '<span class="score-badge">' + yesCount + "/" + names.length + " in</span>") +
+            '<div class="avatars">' + voters.slice(0,5).map(function (n) { return '<span class="avatar" style="background:' + colorFor(n) + '" title="' + esc(n) + '">' + initials(n) + "</span>"; }).join("") + "</div>" +
+          "</div></div>" +
+        '<button type="button" class="wl-toggle-comments" data-itoggle="' + p.id + '">' + (comments.length ? comments.length + " comment" + (comments.length === 1 ? "" : "s") : "Comment") + "</button>" +
+        '<div class="wl-comments" id="ideaComments-' + p.id + '" style="display:' + (ideaOpenComments[p.id] ? "flex" : "none") + ';">' +
+          comments.map(function (c) { return '<div class="wl-comment"><span class="who" style="color:' + colorFor(c.by) + '">' + esc(c.by) + ':</span><span>' + esc(c.text) + "</span></div>"; }).join("") +
+          '<div class="wl-comment-form"><input type="text" placeholder="Say something…" maxlength="240" id="ideaCInput-' + p.id + '" /><button class="btn sm" type="button" data-icomment="' + p.id + '">Send</button></div>' +
+        "</div>";
+      card.querySelectorAll(".vote-btn").forEach(function (b) { b.addEventListener("click", function () { vote(p.id, b.dataset.kind); }); });
+      card.querySelector("[data-itoggle]").addEventListener("click", function () {
+        ideaOpenComments[p.id] = !ideaOpenComments[p.id];
+        card.querySelector("#ideaComments-" + p.id).style.display = ideaOpenComments[p.id] ? "flex" : "none";
+      });
+      card.querySelector("[data-icomment]").addEventListener("click", function () {
+        var inp = card.querySelector("#ideaCInput-" + p.id);
+        ideaAddComment(p.id, inp.value); inp.value = "";
+      });
+      list.appendChild(card);
+    });
+  }
+  function vote(id, kind) {
+    if (!ME) return openGate();
+    if (!db) return;
+    var arr = STATE.suggestions[activeDay] || [];
+    var p = arr.find(function (x) { return x.id === id; });
+    var next = (p && p.votes && p.votes[ME] === kind) ? null : kind;
+    var body = { votes: Object.assign({}, (p && p.votes) || {}) };
+    if (next === null) delete body.votes[ME]; else body.votes[ME] = next;
+    db.doc("days/" + activeDay + "/suggestions/" + id).update(body).catch(function () {});
+  }
+  function ideaAddComment(id, text) {
+    if (!ME || !text.trim() || !db) return;
+    var arr = STATE.suggestions[activeDay] || [];
+    var p = arr.find(function (x) { return x.id === id; });
+    var comments = ((p && p.comments) || []).concat([{ by: ME, text: text.trim().slice(0, 240), at: Date.now() }]);
+    db.doc("days/" + activeDay + "/suggestions/" + id).update({ comments: comments }).catch(function () {});
+  }
+  document.getElementById("addIdeaBtn").addEventListener("click", function () {
+    if (!ME) return openGate();
+    var title = document.getElementById("ideaTitle").value.trim();
+    if (!title || !db) return;
+    var note = document.getElementById("ideaNote").value.trim();
+    var cat = document.getElementById("ideaCat").value;
+    var place = document.getElementById("ideaPlace").value.trim();
+    db.collection("days/" + activeDay + "/suggestions").add({ title: title, note: note, place: place, category: cat, addedBy: ME, votes: {}, comments: [], createdAt: Date.now() }).then(function () {
+      document.getElementById("ideaTitle").value = ""; document.getElementById("ideaNote").value = ""; document.getElementById("ideaPlace").value = "";
+    }).catch(function () {});
+  });
+
+  // ============ WISHLIST ============
+  var wlFilter = "all";
+  var wlOwnerFilter = "";
+  var wlOpenComments = {};
+  (function initWlForm() {
+    var sel = document.getElementById("wlStopSel");
+    sel.innerHTML = stopOptionsHtml("");
+    document.getElementById("wlDate").min = "2026-09-19";
+  })();
+  function renderWlFilters() {
+    var wrap = document.getElementById("wlFilters");
+    var defs = [["all", "All"], ["pending", "Still to do"], ["done", "Done ✓"]];
+    wrap.innerHTML = "";
+    defs.forEach(function (d) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = d[1];
+      b.setAttribute("aria-selected", String(wlFilter === d[0]));
+      b.addEventListener("click", function () { wlFilter = d[0]; renderWlFilters(); renderWishlist(); });
+      wrap.appendChild(b);
+    });
+    var ownerSel = document.getElementById("wlOwnerSel");
+    var names = allNames();
+    ownerSel.innerHTML = '<option value="">Everyone\'s wishes</option>' + names.map(function (n) { return '<option value="' + esc(n) + '">' + esc(n) + "&rsquo;s wishes</option>"; }).join("");
+    ownerSel.value = wlOwnerFilter;
+  }
+  document.getElementById("wlOwnerSel").addEventListener("change", function () {
+    wlOwnerFilter = this.value; renderWishlist();
+  });
+  function openWishlistFor(owner) {
+    wlOwnerFilter = owner; wlFilter = "all";
+    renderWlFilters(); renderWishlist(); activateTab("wishlist");
+  }
+  document.getElementById("wlAddBtn").addEventListener("click", function () {
+    if (!ME) return openGate();
+    var title = document.getElementById("wlTitle").value.trim();
+    if (!title || !db) return;
+    var stop = document.getElementById("wlStopSel").value;
+    var date = document.getElementById("wlDate").value;
+    var time = document.getElementById("wlTime").value.trim();
+    var place = document.getElementById("wlPlace").value.trim();
+    var link = document.getElementById("wlLink").value.trim();
+    db.collection("wishlist").add({
+      title: title, owner: ME, stop: stop, date: date, time: time, place: place,
+      links: link ? [link] : [], status: "pending", votes: {}, comments: [], createdAt: Date.now()
+    }).then(function () {
+      ["wlTitle","wlDate","wlTime","wlPlace","wlLink"].forEach(function (id) { document.getElementById(id).value = ""; });
+    }).catch(function () {});
+  });
+  function wlVote(id, kind) {
+    if (!ME) return openGate();
+    if (!db) return;
+    var item = STATE.wishlist.find(function (x) { return x.id === id; });
+    var next = (item && item.votes && item.votes[ME] === kind) ? null : kind;
+    var body = { votes: Object.assign({}, (item && item.votes) || {}) };
+    if (next === null) delete body.votes[ME]; else body.votes[ME] = next;
+    db.doc("wishlist/" + id).update(body).catch(function () {});
+  }
+  function wlToggleDone(id) {
+    if (!ME) return openGate();
+    var item = STATE.wishlist.find(function (x) { return x.id === id; });
+    if (!item || !db) return;
+    db.doc("wishlist/" + id).update({ status: item.status === "done" ? "pending" : "done" }).catch(function () {});
+  }
+  function wlAddComment(id, text) {
+    if (!ME || !text.trim() || !db) return;
+    var item = STATE.wishlist.find(function (x) { return x.id === id; });
+    var comments = ((item && item.comments) || []).concat([{ by: ME, text: text.trim().slice(0, 240), at: Date.now() }]);
+    db.doc("wishlist/" + id).update({ comments: comments }).catch(function () {});
+  }
+  function renderWishlist() {
+    var wrap = document.getElementById("wlList");
+    var items = STATE.wishlist.slice().sort(function (a, b) { return b.createdAt - a.createdAt; });
+    if (wlFilter !== "all") items = items.filter(function (x) { return (x.status || "pending") === wlFilter; });
+    if (wlOwnerFilter) items = items.filter(function (x) { return x.owner === wlOwnerFilter; });
+    if (!items.length) { wrap.innerHTML = '<div class="empty">' + (wlOwnerFilter ? esc(wlOwnerFilter) + " hasn't added anything here yet." : "Nothing here yet.") + "</div>"; return; }
+    wrap.innerHTML = "";
+    items.forEach(function (w) {
+      var done = w.status === "done";
+      var votes = w.votes || {};
+      var yes = Object.keys(votes).filter(function (n) { return votes[n] === "yes"; });
+      var tags = [];
+      if (w.stop && STOPS[w.stop]) tags.push(STOPS[w.stop].label);
+      if (w.date) tags.push(new Date(w.date + "T12:00:00").toLocaleDateString("en-IN", { day: "numeric", month: "short" }));
+      if (w.time) tags.push(w.time);
+      var card = document.createElement("div");
+      card.className = "card wl-card" + (done ? " done" : "");
+      card.innerHTML =
+        '<div class="wl-top"><div><div class="wl-title' + (done ? " strike" : "") + '">' + esc(w.title) + '</div>' +
+          '<div class="wl-meta"><span class="wl-tag">by ' + esc(w.owner) + '</span>' + tags.map(function (t) { return '<span class="wl-tag">' + esc(t) + "</span>"; }).join("") + "</div></div>" +
+          (done ? '<span class="wl-done-tag">✓ Done</span>' : "") + "</div>" +
+        (w.links && w.links.length || w.place ? '<div class="wl-links">' +
+          (w.place ? '<a class="nav-chip" href="' + mapsSearchUrl(w.place) + '" target="_blank" rel="noopener">&#129517; Navigate</a>' : "") +
+          (w.links || []).map(function (l) { return '<a class="wl-link" href="' + esc(l) + '" target="_blank" rel="noopener">🔗 ' + esc(l.replace(/^https?:\/\//, "")) + "</a>"; }).join("") +
+          "</div>" : "") +
+        '<div class="wl-actions-row"><div class="vote-btns">' + btnHtml("yes","🔥",votes[ME]) + btnHtml("maybe","🤔",votes[ME]) + btnHtml("no","❌",votes[ME]) + '</div>' +
+          '<div style="display:flex;align-items:center;gap:8px;"><div class="avatars">' + yes.slice(0,5).map(function (n) { return '<span class="avatar" style="background:' + colorFor(n) + '" title="' + esc(n) + '">' + initials(n) + "</span>"; }).join("") + '</div>' +
+          '<button class="btn ' + (done ? "ghost" : "accent") + ' sm" type="button" data-done="' + w.id + '">' + (done ? "Mark not done" : "Mark done ✓") + "</button></div></div>" +
+        '<button type="button" class="wl-toggle-comments" data-toggle="' + w.id + '">' + (w.comments && w.comments.length ? w.comments.length + " comment" + (w.comments.length === 1 ? "" : "s") : "Comment") + "</button>" +
+        '<div class="wl-comments" id="wlComments-' + w.id + '" style="display:' + (wlOpenComments[w.id] ? "flex" : "none") + ';">' +
+          (w.comments || []).map(function (c) { return '<div class="wl-comment"><span class="who" style="color:' + colorFor(c.by) + '">' + esc(c.by) + ':</span><span>' + esc(c.text) + "</span></div>"; }).join("") +
+          '<div class="wl-comment-form"><input type="text" placeholder="Say something…" maxlength="240" id="wlCInput-' + w.id + '" /><button class="btn sm" type="button" data-comment="' + w.id + '">Send</button></div>' +
+        "</div>";
+      card.querySelectorAll(".vote-btn").forEach(function (b) { b.addEventListener("click", function () { wlVote(w.id, b.dataset.kind); }); });
+      card.querySelector("[data-done]").addEventListener("click", function () { wlToggleDone(w.id); });
+      card.querySelector("[data-toggle]").addEventListener("click", function () {
+        wlOpenComments[w.id] = !wlOpenComments[w.id];
+        card.querySelector("#wlComments-" + w.id).style.display = wlOpenComments[w.id] ? "flex" : "none";
+      });
+      card.querySelector("[data-comment]").addEventListener("click", function () {
+        var inp = card.querySelector("#wlCInput-" + w.id);
+        wlAddComment(w.id, inp.value); inp.value = "";
+      });
+      wrap.appendChild(card);
+    });
+  }
+
+  // ============ MONEY ============
+  function renderSplitChips() {
+    var wrap = document.getElementById("splitChips");
+    var names = allNames();
+    var selected = wrap.dataset.selected ? JSON.parse(wrap.dataset.selected) : names.slice();
+    wrap.innerHTML = "";
+    names.forEach(function (n) {
+      var chip = document.createElement("div");
+      chip.className = "split-chip"; chip.dataset.on = String(selected.indexOf(n) !== -1);
+      chip.innerHTML = '<span class="avatar" style="width:16px;height:16px;font-size:8px;background:' + colorFor(n) + '">' + initials(n) + "</span>" + esc(n);
+      chip.addEventListener("click", function () {
+        var on = chip.dataset.on === "true"; chip.dataset.on = String(!on);
+        var sel = JSON.parse(wrap.dataset.selected || "[]");
+        if (on) sel = sel.filter(function (x) { return x !== n; }); else sel.push(n);
+        wrap.dataset.selected = JSON.stringify(sel);
+      });
+      wrap.appendChild(chip);
+    });
+    wrap.dataset.selected = JSON.stringify(selected);
+  }
+  document.getElementById("expDate").valueAsDate = new Date();
+  document.getElementById("addExpBtn").addEventListener("click", function () {
+    if (!ME) return openGate();
+    var desc = document.getElementById("expDesc").value.trim();
+    var amt = parseFloat(document.getElementById("expAmt").value);
+    var cat = document.getElementById("expCat").value;
+    var dateVal = document.getElementById("expDate").value;
+    var split = JSON.parse(document.getElementById("splitChips").dataset.selected || "[]");
+    if (!desc || !amt || amt <= 0 || !split.length || !db) return;
+    var createdAt = dateVal ? new Date(dateVal + "T12:00:00").getTime() : Date.now();
+    db.collection("expenses").add({ desc: desc, amount: amt, category: cat, paidBy: ME, split: split, createdAt: createdAt }).then(function () {
+      document.getElementById("expDesc").value = ""; document.getElementById("expAmt").value = "";
+      document.getElementById("expDate").valueAsDate = new Date();
+    }).catch(function () {});
+  });
+  function computeBalances() {
+    var bal = {}; allNames().forEach(function (n) { bal[n] = 0; });
+    var total = 0, catTotals = {};
+    STATE.expenses.forEach(function (e) {
+      total += e.amount;
+      catTotals[e.category || "other"] = (catTotals[e.category || "other"] || 0) + e.amount;
+      bal[e.paidBy] = (bal[e.paidBy] || 0) + e.amount;
+      var share = e.amount / e.split.length;
+      e.split.forEach(function (n) { bal[n] = (bal[n] || 0) - share; });
+    });
+    return { bal: bal, total: total, catTotals: catTotals };
+  }
+  function spentByPerson() {
+    var spent = {}; allNames().forEach(function (n) { spent[n] = 0; });
+    STATE.expenses.forEach(function (e) {
+      var share = e.amount / e.split.length;
+      e.split.forEach(function (n) { spent[n] = (spent[n] || 0) + share; });
+    });
+    return spent;
+  }
+  function simplifyDebts(bal) {
+    var creditors = [], debtors = [];
+    Object.keys(bal).forEach(function (n) {
+      var v = Math.round(bal[n]);
+      if (v > 0) creditors.push({ n: n, v: v }); else if (v < 0) debtors.push({ n: n, v: -v });
+    });
+    creditors.sort(function (a, b) { return b.v - a.v; });
+    debtors.sort(function (a, b) { return b.v - a.v; });
+    var out = [], i = 0, j = 0;
+    while (i < debtors.length && j < creditors.length) {
+      var pay = Math.min(debtors[i].v, creditors[j].v);
+      if (pay > 0) out.push({ from: debtors[i].n, to: creditors[j].n, amt: pay });
+      debtors[i].v -= pay; creditors[j].v -= pay;
+      if (debtors[i].v <= 0) i++;
+      if (creditors[j].v <= 0) j++;
+    }
+    return out;
+  }
+  function renderMoney() {
+    var names = allNames();
+    var res = computeBalances();
+    var spent = spentByPerson();
+    var plannedTotal = names.reduce(function (s, n) { return s + (memberFor(n).budget || 0); }, 0);
+    document.getElementById("statTotal").textContent = fmtRupee(res.total);
+    document.getElementById("statPlanned").textContent = fmtRupee(plannedTotal);
+    document.getElementById("statYou").textContent = ME ? fmtRupee(res.bal[ME] || 0) : "—";
+
+    var bars = document.getElementById("budgetBars");
+    bars.innerHTML = "";
+    var maxSpent = Math.max.apply(null, names.map(function (n) { return spent[n] || 0; }).concat([1]));
+    names.forEach(function (n) {
+      var m = memberFor(n);
+      var isMe = n === ME;
+      var budget = m.budget || 0;
+      var sp = spent[n] || 0;
+      var row = document.createElement("div");
+      row.className = "card bbar-row";
+      if (isMe) {
+        var pct = budget > 0 ? Math.min(100, (sp / budget) * 100) : (sp > 0 ? 100 : 0);
+        var over = budget > 0 && sp > budget;
+        row.innerHTML =
+          '<div class="bbar-top"><span class="who"><span class="avatar" style="background:' + colorFor(n) + '">' + initials(n) + "</span>" + esc(n) + ' (you)</span>' +
+          '<span class="num">' + fmtRupee(sp) + (budget ? " / " + fmtRupee(budget) : "") + '<button class="bbar-edit-btn" type="button" id="budgetEditBtn" title="Edit your budget">✏️</button></span></div>' +
+          '<div class="bbar-track"><div class="bbar-fill' + (over ? " over" : "") + '" style="width:' + pct + '%"></div></div>' +
+          '<div class="bbar-sub">' + (budget ? (over ? "Over budget by " + fmtRupee(sp - budget) : fmtRupee(budget - sp) + " left") : "No budget set yet — click ✏️ to set one") + "</div>" +
+          '<div class="bbar-edit-row" id="budgetEditRow" style="display:none;"><input type="number" id="budgetEditInput" min="0" step="100" value="' + (budget || "") + '" placeholder="15000" /><button class="btn accent sm" type="button" id="budgetEditSave">Save</button></div>';
+      } else {
+        var pct2 = maxSpent > 0 ? Math.min(100, (sp / maxSpent) * 100) : 0;
+        row.innerHTML =
+          '<div class="bbar-top"><span class="who"><span class="avatar" style="background:' + colorFor(n) + '">' + initials(n) + "</span>" + esc(n) + "</span>" +
+          '<span class="num">' + fmtRupee(sp) + " spent</span></div>" +
+          '<div class="bbar-track"><div class="bbar-fill" style="width:' + pct2 + '%"></div></div>' +
+          '<div class="bbar-sub"><span class="lock-ic">🔒</span> budget target private to ' + esc(n) + "</div>";
+      }
+      bars.appendChild(row);
+    });
+    if (ME) {
+      var editBtn = document.getElementById("budgetEditBtn");
+      if (editBtn) editBtn.addEventListener("click", function () {
+        var editRow = document.getElementById("budgetEditRow");
+        editRow.style.display = editRow.style.display === "none" ? "flex" : "none";
+      });
+      var saveBtn = document.getElementById("budgetEditSave");
+      if (saveBtn) saveBtn.addEventListener("click", function () {
+        var val = parseFloat(document.getElementById("budgetEditInput").value) || 0;
+        if (db) db.doc("members/" + slug(ME)).set(Object.assign({ name: ME, color: MY_COLOR }, myDoc(), { budget: val })).catch(function () {});
+      });
+    }
+
+    var catWrap = document.getElementById("catBars");
+    var catKeys = Object.keys(CAT_LABELS);
+    var maxCat = Math.max.apply(null, catKeys.map(function (k) { return res.catTotals[k] || 0; }).concat([1]));
+    catWrap.innerHTML = "";
+    if (!res.total) { catWrap.innerHTML = '<div class="empty">Nothing logged yet.</div>'; }
+    else catKeys.forEach(function (k) {
+      var v = res.catTotals[k] || 0;
+      var row = document.createElement("div"); row.className = "cat-row";
+      row.innerHTML = "<span>" + CAT_LABELS[k] + '</span><div class="cat-track"><div class="cat-fill" style="width:' + (v/maxCat*100) + "%;background:" + CAT_COLORS[k] + ';"></div></div><span class="num">' + fmtRupee(v) + "</span>";
+      catWrap.appendChild(row);
+    });
+
+    var settleList = document.getElementById("settleList");
+    var settles = simplifyDebts(res.bal);
+    if (!settles.length) settleList.innerHTML = '<div class="empty">' + (STATE.expenses.length ? "Everyone's square." : "No expenses logged yet.") + "</div>";
+    else {
+      settleList.innerHTML = "";
+      settles.forEach(function (s) {
+        var row = document.createElement("div"); row.className = "card settle-row";
+        row.innerHTML = '<span class="avatar" style="background:' + colorFor(s.from) + '">' + initials(s.from) + '</span><span class="settle-names">' + esc(s.from) + ' <span class="arrow-ic">&rarr;</span> ' + esc(s.to) + '</span><span class="avatar" style="background:' + colorFor(s.to) + '">' + initials(s.to) + '</span><span class="settle-amt num">' + fmtRupee(s.amt) + "</span>";
+        settleList.appendChild(row);
+      });
+    }
+
+    var expList = document.getElementById("expenseList");
+    if (!STATE.expenses.length) expList.innerHTML = '<div class="empty">Nothing logged yet.</div>';
+    else {
+      expList.innerHTML = "";
+      STATE.expenses.slice().sort(function (a, b) { return b.createdAt - a.createdAt; }).forEach(function (e) {
+        var row = document.createElement("div"); row.className = "card expense-row";
+        var dstr = new Date(e.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+        row.innerHTML = '<div><div class="expense-desc">' + esc(e.desc) + '</div><div class="expense-meta">' + esc(dstr) + " &middot; " + esc(e.paidBy) + " paid &middot; " + esc(CAT_LABELS[e.category] || "Other") + " &middot; split " + e.split.length + ' ways</div></div><div class="expense-amt num">' + fmtRupee(e.amount) + "</div>";
+        expList.appendChild(row);
+      });
+    }
+  }
+
+  // ============ CREW / PROFILES ============
+  function renderCars() {
+    var punto = [], baleno = [];
+    allNames().forEach(function (n) {
+      var car = memberFor(n).car;
+      if (car === "punto") punto.push(n); else if (car === "baleno") baleno.push(n);
+    });
+    document.getElementById("puntoSeats").textContent = punto.length + "/4";
+    document.getElementById("balenoSeats").textContent = baleno.length + "/5";
+    function fill(id, arr) {
+      var w = document.getElementById(id); w.innerHTML = "";
+      if (!arr.length) { w.innerHTML = '<span style="font-size:12px;color:var(--ink-soft);">Empty so far</span>'; return; }
+      arr.forEach(function (n) {
+        var s = document.createElement("span"); s.className = "seat-avatar";
+        s.innerHTML = '<span class="avatar" style="width:18px;height:18px;font-size:8px;background:' + colorFor(n) + '">' + initials(n) + "</span>" + esc(n);
+        w.appendChild(s);
+      });
+    }
+    fill("puntoSeatList", punto); fill("balenoSeatList", baleno);
+  }
+  document.getElementById("joinPunto").addEventListener("click", function () { setMyCar("punto"); });
+  document.getElementById("joinBaleno").addEventListener("click", function () { setMyCar("baleno"); });
+  function setMyCar(car) {
+    if (!ME) return openGate();
+    var cur = myDoc().car;
+    var next = cur === car ? "" : car;
+    if (db) db.doc("members/" + slug(ME)).set(Object.assign({ name: ME, color: MY_COLOR }, myDoc(), { car: next })).catch(function () {});
+  }
+
+  function stopOptionsHtml(selected) {
+    var html = '<option value="">Not sure yet</option>';
+    Object.keys(STOPS).forEach(function (k) { html += '<option value="' + k + '"' + (selected === k ? " selected" : "") + ">" + STOPS[k].label + "</option>"; });
+    return html;
+  }
+  function renderCrew() {
+    renderCars();
+    var wrap = document.getElementById("crewList");
+    var names = allNames();
+    if (!names.length) { wrap.innerHTML = '<div class="empty">Nobody yet &mdash; set your name up top.</div>'; return; }
+    wrap.innerHTML = "";
+    names.forEach(function (n) {
+      var m = memberFor(n);
+      var isMe = n === ME;
+      var wishCount = STATE.wishlist.filter(function (w) { return w.owner === n; }).length;
+      var card = document.createElement("div");
+      card.className = "card profile-card";
+      card.innerHTML =
+        '<div class="profile-top"><span class="avatar" style="background:' + colorFor(n) + '">' + initials(n) + "</span>" +
+          '<div><div class="profile-name">' + esc(n) + "</div><div class=\"profile-home\">" + (m.home ? esc(m.home) : "Home city not set") + "</div></div>" +
+          (isMe ? '<span class="profile-you">You</span>' : "") + "</div>" +
+        '<div class="profile-meta-row">' +
+          '<span class="meta-pill">💰 ' + (isMe ? (m.budget ? fmtRupee(m.budget) + " budget" : "No budget set") : "🔒 budget private") + "</span>" +
+          '<span class="meta-pill">🚗 ' + (m.car ? (m.car === "punto" ? "Punto" : "Baleno") : "No car picked") + "</span>" +
+          '<span class="meta-pill">📍 ' + (m.currentStop ? "In " + esc(STOPS[m.currentStop] ? STOPS[m.currentStop].label : m.currentStop) : "Location not set") + "</span>" +
+          '<button type="button" class="meta-pill" data-openwish="' + esc(n) + '" style="cursor:pointer;">✨ ' + wishCount + " wishlist item" + (wishCount === 1 ? "" : "s") + " &rsaquo;</button>" +
+          '<a class="meta-pill" href="' + (DRIVE_LINKS[n] || DRIVE_LINKS.parent) + '" target="_blank" rel="noopener">📁 Photo folder</a>' +
+        "</div>" +
+        (isMe ? '<div class="profile-actions"><button class="btn ghost sm" type="button" id="editToggle-' + slug(n) + '">Edit my profile</button></div>' +
+          '<div class="edit-panel" id="editPanel-' + slug(n) + '">' +
+            '<div class="grid2"><div class="field"><label>Home city</label><input type="text" id="editHome" value="' + esc(m.home || "") + '" maxlength="40" placeholder="e.g. Bengaluru" /></div>' +
+            '<div class="field"><label>Trip budget (₹, private)</label><input type="number" id="editBudget" value="' + (m.budget || "") + '" min="0" step="100" placeholder="15000" /></div></div>' +
+            '<div class="field"><label>Currently at</label><select id="editStop">' + stopOptionsHtml(m.currentStop) + '</select></div>' +
+            '<button class="btn ghost sm" type="button" id="detectStopBtn">📡 Auto-detect nearest stop</button>' +
+            '<button class="btn accent" type="button" id="saveProfileBtn">Save profile</button>' +
+          "</div>" : "");
+      wrap.appendChild(card);
+      card.querySelector("[data-openwish]").addEventListener("click", function () { openWishlistFor(n); });
+
+      if (isMe) {
+        var toggle = card.querySelector("#editToggle-" + slug(n));
+        var panel = card.querySelector("#editPanel-" + slug(n));
+        toggle.addEventListener("click", function () { panel.classList.toggle("open"); });
+        card.querySelector("#saveProfileBtn").addEventListener("click", function () {
+          var home = card.querySelector("#editHome").value.trim();
+          var budget = parseFloat(card.querySelector("#editBudget").value) || 0;
+          var stop = card.querySelector("#editStop").value;
+          if (db) db.doc("members/" + slug(ME)).set(Object.assign({ name: ME, color: MY_COLOR }, myDoc(), { home: home, budget: budget, currentStop: stop || "" })).catch(function () {});
+          checkNearby(stop);
+        });
+        card.querySelector("#detectStopBtn").addEventListener("click", function () { detectNearestStop(card.querySelector("#editStop")); });
+      }
+    });
+  }
+  function detectNearestStop(selectEl) {
+    if (!("geolocation" in navigator)) { alert("Location isn't available in this browser view — pick your stop manually."); return; }
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      var best = null, bestD = Infinity;
+      Object.keys(STOPS).forEach(function (k) {
+        var d = haversine(pos.coords.latitude, pos.coords.longitude, STOPS[k].lat, STOPS[k].lon);
+        if (d < bestD) { bestD = d; best = k; }
+      });
+      if (best) { selectEl.value = best; checkNearby(best); }
+    }, function () {
+      alert("Couldn't get your location — pick your stop manually instead.");
+    }, { timeout: 8000 });
+  }
+  function checkNearby(stopKey) {
+    if (!stopKey || !ME) return;
+    var found = STATE.wishlist
+      .filter(function (w) { return w.stop === stopKey && w.owner !== ME && w.status !== "done"; })
+      .map(function (w) { return { owner: w.owner, title: w.title, id: w.id }; });
+    var fresh = found.filter(function (f) { return !dismissedNudges[f.id]; });
+    if (!fresh.length) return;
+    var f = fresh[0];
+    var banner = document.getElementById("nearbyBanner");
+    document.getElementById("nearbyText").textContent = "📍 " + f.owner + " wanted to go to \"" + f.title + "\" — you're right there in " + (STOPS[stopKey] ? STOPS[stopKey].label : stopKey) + ". Worth a detour?";
+    banner.dataset.id = f.id;
+    banner.classList.add("show");
+  }
+  document.getElementById("nearbyDismiss").addEventListener("click", function () {
+    var banner = document.getElementById("nearbyBanner");
+    dismissedNudges[banner.dataset.id] = true;
+    try { localStorage.setItem("sb_dismissed", JSON.stringify(dismissedNudges)); } catch (e) {}
+    banner.classList.remove("show");
+  });
+
+  function render() {
+    renderRoute(); renderDayTabs(); renderDayDetail(); renderMustVisit(); renderIdeas();
+    renderWlFilters(); renderWishlist();
+    renderSplitChips(); renderMoney();
+    renderCrew();
+    if (ME && myDoc().currentStop) checkNearby(myDoc().currentStop);
+  }
+  render();
+
+  // ============ DB WIRING (Supabase) ============
+  // Adapter that mimics the tiny doc()/collection() surface the rest of
+  // this file was written against, so none of the render/vote/add logic
+  // above had to change -- only how it reaches the database did.
+  function makeSupaDB(client) {
+    var CAMEL_TO_COL = { joinedAt: "joined_at", currentStop: "current_stop", addedBy: "added_by", createdAt: "created_at", paidBy: "paid_by", billIds: "bill_ids" };
+    var COL_TO_CAMEL = { joined_at: "joinedAt", current_stop: "currentStop", added_by: "addedBy", created_at: "createdAt", paid_by: "paidBy", bill_ids: "billIds" };
+
+    function toRow(table, obj) {
+      var r = {};
+      Object.keys(obj).forEach(function (k) {
+        var col = CAMEL_TO_COL[k] || k;
+        if (table === "expenses" && k === "desc") col = "description";
+        r[col] = obj[k];
+      });
+      return r;
+    }
+    function fromRow(table, row) {
+      var o = {};
+      Object.keys(row).forEach(function (col) {
+        if (col === "id") return;
+        var k = COL_TO_CAMEL[col] || col;
+        if (table === "expenses" && col === "description") k = "desc";
+        if (table === "suggestions" && col === "day_id") return;
+        o[k] = row[col];
+      });
+      return o;
+    }
+    function parsePath(path) {
+      var parts = path.split("/");
+      if (parts[0] === "days") return { table: "suggestions", dayId: parts[1], id: parts[3] };
+      if (parts[0] === "itemInfo") return { table: "item_info", id: parts[1] };
+      return { table: parts[0], id: parts[1] };
+    }
+    function logErr(res) { if (res && res.error) console.error(res.error); return res; }
+
+    function doc(path) {
+      var p = parsePath(path);
+      return {
+        set: function (obj) {
+          var row = toRow(p.table, obj);
+          row.id = p.id;
+          if (p.table === "suggestions" && p.dayId) row.day_id = p.dayId;
+          return client.from(p.table).upsert(row).then(logErr);
+        },
+        update: function (obj) {
+          var row = toRow(p.table, obj);
+          return client.from(p.table).update(row).eq("id", p.id).then(logErr);
+        }
+      };
+    }
+    function collection(path) {
+      var p = parsePath(path);
+      return {
+        add: function (obj) {
+          var row = toRow(p.table, obj);
+          if (p.table === "suggestions" && p.dayId) row.day_id = p.dayId;
+          return client.from(p.table).insert(row).then(logErr);
+        },
+        onSnapshot: function (next, errCb) {
+          function reload() {
+            var q = client.from(p.table).select("*");
+            if (p.table === "suggestions" && p.dayId) q = q.eq("day_id", p.dayId);
+            q.then(function (res) {
+              if (res.error) { if (errCb) errCb(res.error); return; }
+              var docs = res.data.map(function (row) {
+                var data = fromRow(p.table, row);
+                return { id: row.id, data: function () { return data; } };
+              });
+              next({ docs: docs });
+            });
+          }
+          reload();
+          var ch = client.channel(p.table + ":" + (p.dayId || "all") + ":" + Math.random().toString(36).slice(2));
+          ch.on("postgres_changes", { event: "*", schema: "public", table: p.table }, reload).subscribe();
+          return function () { client.removeChannel(ch); };
+        }
+      };
+    }
+    return { doc: doc, collection: collection };
+  }
+
+  if (typeof window.supabase !== "undefined" && SUPABASE_URL.indexOf("REPLACE_") !== 0) {
+    var supaClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    db = makeSupaDB(supaClient);
+
+    DAYS.forEach(function (day) {
+      db.collection("days/" + day.id + "/suggestions").onSnapshot(function (snap) {
+        STATE.suggestions[day.id] = snap.docs.map(function (doc) { return Object.assign({ id: doc.id }, doc.data()); });
+        if (activeDay === day.id) renderIdeas();
+      }, function () {});
+    });
+
+    db.collection("expenses").onSnapshot(function (snap) {
+      STATE.expenses = snap.docs.map(function (doc) { return Object.assign({ id: doc.id }, doc.data()); });
+      renderMoney(); renderSplitChips(); renderCrew(); renderDayDetail();
+    }, function () {});
+
+    db.collection("itemInfo").onSnapshot(function (snap) {
+      var m = {};
+      snap.docs.forEach(function (doc) { m[doc.id] = doc.data(); });
+      STATE.itemInfo = m;
+      renderDayDetail();
+    }, function () {});
+
+    db.collection("wishlist").onSnapshot(function (snap) {
+      STATE.wishlist = snap.docs.map(function (doc) { return Object.assign({ id: doc.id }, doc.data()); });
+      renderWishlist(); renderCrew();
+      if (ME && myDoc().currentStop) checkNearby(myDoc().currentStop);
+    }, function () {});
+
+    db.collection("members").onSnapshot(function (snap) {
+      var m = {};
+      snap.docs.forEach(function (doc) { m[doc.id] = doc.data(); });
+      STATE.members = m;
+      try {
+        var cache = {};
+        Object.keys(m).forEach(function (k) { cache[m[k].name] = m[k].color; });
+        localStorage.setItem("sb_members", JSON.stringify(cache));
+      } catch (e) {}
+      renderIdeas(); renderSplitChips(); renderMoney(); renderCrew();
+      if (ME && myDoc().currentStop) checkNearby(myDoc().currentStop);
+    }, function () {});
+
+    if (ME) db.doc("members/" + slug(ME)).set(Object.assign({ name: ME, color: MY_COLOR, joinedAt: Date.now() }, myDoc())).catch(function () {});
+  } else {
+    console.warn("Switchback: Supabase isn't configured yet -- fill in SUPABASE_URL / SUPABASE_ANON_KEY near the top of the script.");
+  }
+})();
+</script>
+</body>
+</html>
