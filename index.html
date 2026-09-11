@@ -224,7 +224,7 @@
   .must-visit .sub { font-size: 11.5px; color: var(--ink-soft); margin-bottom: 10px; }
   .mv-list { display: flex; flex-direction: column; gap: 8px; }
   .mv-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
-  .mv-gem { font-size: 10px; text-transform: uppercase; letter-spacing: .04em; font-weight: 700; color: var(--gold); background: var(--gold-soft); border-radius: 999px; padding: 2px 7px; margin-left: 6px; }
+  .mv-gem { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; text-transform: uppercase; letter-spacing: .04em; font-weight: 700; color: var(--gold); background: var(--gold-soft); border-radius: 999px; padding: 2px 8px 2px 6px; margin-left: 6px; }
 
   .sugg-head { display: flex; justify-content: space-between; align-items: baseline; margin: 4px 0 10px; }
   .sugg-head h3 { font-size: 14.5px; font-weight: 600; }
@@ -388,6 +388,25 @@
     <path d="M3.3 20.2c.4-4 3-6.7 5.7-6.7s5.3 2.7 5.7 6.7" stroke="currentColor" fill="none"/>
     <path d="M14.6 14.4c1.9.3 3.7 2.3 4.1 5.5" stroke="currentColor" fill="none"/>
   </symbol>
+  <symbol id="ic-see" viewBox="0 0 24 24">
+    <path d="M2 12c2.4-4.8 6.7-7.6 10-7.6s7.6 2.8 10 7.6c-2.4 4.8-6.7 7.6-10 7.6S4.4 16.8 2 12z" stroke="currentColor" fill="none" stroke-linejoin="round"/>
+    <circle cx="12" cy="12" r="2.6" stroke="currentColor" fill="none"/>
+  </symbol>
+  <symbol id="ic-do" viewBox="0 0 24 24">
+    <path d="M13 2 4 14h6l-1 8 9-12h-6z" fill="currentColor" stroke="currentColor" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="ic-eatcat" viewBox="0 0 24 24">
+    <path d="M7 2v7a2 2 0 0 0 4 0V2M9 9v13" stroke="currentColor" fill="none"/>
+    <path d="M16 2c-1.4 1.4-1.8 3.6-1.4 6l1.4 1.5v12.5" stroke="currentColor" fill="none"/>
+  </symbol>
+  <symbol id="ic-stay" viewBox="0 0 24 24">
+    <path d="M3 11.5 12 4l9 7.5" stroke="currentColor" fill="none" stroke-linejoin="round"/>
+    <path d="M5.5 10v10h13V10" stroke="currentColor" fill="none"/>
+  </symbol>
+  <symbol id="ic-gem" viewBox="0 0 24 24">
+    <path d="M12 3l9 6-9 12-9-12z" stroke="currentColor" fill="none" stroke-linejoin="round"/>
+    <path d="M3 9h18M9 3 7 9l5 12 5-12-2-6" stroke="currentColor" fill="none"/>
+  </symbol>
 </svg>
 
 <nav class="sidenav" role="tablist" aria-label="Sections">
@@ -449,7 +468,7 @@
     <section class="panel active" id="panel-itin">
       <div class="panel-head">
         <h2>The plan, day by day</h2>
-        <p>The base route is locked. Anyone can pitch an add-on for a day &mdash; it needs a majority vote before it joins the plan.</p>
+        <p>Route's locked. Add-ons need a majority vote.</p>
       </div>
 
       <div class="card route-card">
@@ -504,7 +523,7 @@
     <section class="panel" id="panel-wishlist">
       <div class="panel-head">
         <h2>The bucket list</h2>
-        <p>Anyone can add a wish, tag it to a stop, vote, comment, or attach a link. Tick it off once the group's actually done it.</p>
+        <p>Add, vote, comment. Tick off once it's done.</p>
       </div>
       <div class="card add-form">
         <div class="stack">
@@ -552,7 +571,7 @@
     <section class="panel" id="panel-money">
       <div class="panel-head">
         <h2>The shared wallet</h2>
-        <p>Set your own budget, log what you paid for &mdash; Switchback works out who owes whom in the fewest transfers, and flags anyone running hot.</p>
+        <p>Fewest transfers to settle up, flags anyone over budget.</p>
       </div>
       <div class="stat-row">
         <div class="card stat"><div class="k">Trip total spent</div><div class="v num" id="statTotal">&#8377;0</div></div>
@@ -567,13 +586,13 @@
 
       <div id="moneyOverview">
         <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin:4px 0 8px;">Budget vs. spend, per person</h3>
-        <p style="font-size:12px;color:var(--ink-soft);margin:0 0 10px;">Everyone's spend is visible (it's the shared ledger) &mdash; but each person's target budget stays private to them unless they choose to reveal it.</p>
+        <p style="font-size:12px;color:var(--ink-soft);margin:0 0 10px;">Spend is shared; budget targets stay private.</p>
         <div class="budget-bars" id="budgetBars"></div>
       </div>
 
       <div class="card calc-card" id="calcCard">
         <h3>Where the estimate came from</h3>
-        <p>Built as a mid-range 5-day / 4-night hill-trip budget: shared stay, food, local transport/fuel and activities, plus an evening-drinks allowance for the six of you who drink (not applied to Bharath), and a 10% buffer on top. Travel to and from Dehradun/Rishikesh is on top of this and different for everyone &mdash; only Bharath's is filled in so far (₹5,000 train + ₹8,300 flight).</p>
+        <p>Mid-range hill-trip budget: stay, food, transport, activities, drinks (not Bharath) + 10% buffer. Travel to/from Dehradun is separate per person.</p>
         <table class="calc-table">
           <thead><tr><th>Category</th><th class="amt">Per person</th></tr></thead>
           <tbody>
@@ -587,7 +606,7 @@
             <tr class="calc-total-row"><td>Trip-local total &mdash; Bharath (no alcohol)</td><td class="amt num">₹11,100</td></tr>
           </tbody>
         </table>
-        <p>These are starting numbers, not the truth &mdash; anyone can change their own in the Overview tab, and it'll recalculate everyone's balance instantly.</p>
+        <p>Starting numbers, not gospel — edit yours anytime in Overview.</p>
       </div>
 
       <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin:18px 0 8px;">By category</h3>
@@ -641,7 +660,7 @@
     <section class="panel" id="panel-crew">
       <div class="panel-head">
         <h2>Who's actually coming</h2>
-        <p>Your profile and your photo folder are visible to the crew. Your budget target stays private &mdash; see the Wishlist tab for everyone's wishes.</p>
+        <p>Your budget stays private. Everything else doesn't.</p>
       </div>
       <div class="car-row">
         <div class="card car-card">
@@ -700,6 +719,7 @@
 
   var PALETTE = ["#c96a34","#3d6357","#b8862e","#7a5cad","#3d7ea6","#a3402f","#5c8a3d","#af5a86"];
   var CATS = { see: "See", do: "Do", eat: "Eat", stay: "Stay" };
+  var CAT_ICONS = { see: "ic-see", do: "ic-do", eat: "ic-eatcat", stay: "ic-stay" };
   var CAT_LABELS = { transport: "Transport", stay: "Stay", food: "Food", activity: "Activities", other: "Other" };
   var CAT_COLORS = { transport: "#3d7ea6", stay: "#3d6357", food: "#c96a34", activity: "#b8862e", other: "#7a5cad" };
 
@@ -768,7 +788,7 @@
         { t: "7:00 PM", x: "Depart for Rishikesh, late evening (~7 hr).", p: "Rishikesh" },
         { t: "~2:00 AM", x: "Another long leg back-to-back — consider splitting the drive if anyone's exhausted.", p: "Rishikesh", warn: true }
       ] },
-    { id: "day5", date: "Tue, 23 Sep", city: "Rishikesh", stay: "Rishikesh (last day)", stops: ["rishikesh"],
+    { id: "day5", date: "Tue, 23 Sep", city: "Rishikesh", stay: "Rishikesh", stops: ["rishikesh"],
       items: [
         { t: "10:00 AM", x: "Late breakfast.", p: "Rishikesh" },
         { t: "11:30 AM", x: "Laxman Jhula & Ram Jhula walk.", p: "Laxman Jhula, Rishikesh" },
@@ -776,6 +796,27 @@
         { t: "3:00 PM", x: "Free time / cafes / shopping.", p: "Rishikesh" },
         { t: "5:00 PM", x: "Triveni Ghat Aarti.", p: "Triveni Ghat, Rishikesh" },
         { t: "7:00 PM", x: "Jo and Bindu head home from Rishikesh.", p: "Rishikesh" }
+      ] },
+    { id: "day6", date: "Wed, 24 Sep", city: "Rishikesh — Dul, VP, PM, Katu & Bharath", stay: "Rishikesh", stops: ["rishikesh"],
+      items: [
+        { t: "8:00 AM", x: "White water rafting.", p: "Rishikesh rafting point, Shivpuri" },
+        { t: "1:00 PM", x: "Lunch by the river.", p: "Rishikesh" },
+        { t: "3:00 PM", x: "Beatles Ashram (Chaurasi Kutia).", p: "Beatles Ashram, Rishikesh" },
+        { t: "7:00 PM", x: "Free evening — cafes on the ghats.", p: "Rishikesh" }
+      ] },
+    { id: "day7", date: "Thu, 25 Sep", city: "Rishikesh — Dul, VP, PM, Katu & Bharath", stay: "Rishikesh", stops: ["rishikesh"],
+      items: [
+        { t: "5:30 AM", x: "Sunrise trek to Kunjapuri Temple (optional, early start).", p: "Kunjapuri Temple, Rishikesh" },
+        { t: "11:00 AM", x: "Neer Garh Waterfall.", p: "Neer Garh Waterfall, Rishikesh" },
+        { t: "2:00 PM", x: "Lunch + rest.", p: "Rishikesh" },
+        { t: "5:00 PM", x: "Yoga / meditation session at an ashram (optional).", p: "Parmarth Niketan, Rishikesh" }
+      ] },
+    { id: "day8", date: "Fri, 26 Sep", city: "Rishikesh", stay: "Rishikesh — last day", stops: ["rishikesh"],
+      items: [
+        { t: "10:00 AM", x: "Vashishta Gufa cave meditation spot.", p: "Vashishta Gufa, Rishikesh" },
+        { t: "1:00 PM", x: "Farewell lunch.", p: "Rishikesh" },
+        { t: "4:00 PM", x: "Last-minute shopping.", p: "Rishikesh" },
+        { t: "Evening", x: "Dul, VP, PM, Katu & Bharath head home.", p: "Rishikesh" }
       ] }
   ];
 
@@ -940,7 +981,7 @@
         wrap.appendChild(legEl);
       }
     });
-    document.getElementById("routeNote").textContent = "Haridwar sits on the way down from the hills, and Rishikesh is close to it on the way back — this order avoids doubling back across Uttarakhand, which is where most trips waste fuel.";
+    document.getElementById("routeNote").textContent = "No backtracking — this order is already fuel-efficient.";
     document.getElementById("routeNavAll").href = mapsRouteUrl();
   }
   function renderMustVisit() {
@@ -948,9 +989,9 @@
     var wrap = document.getElementById("mustVisit");
     var items = [];
     (d.stops || []).forEach(function (k) { (MUST_VISIT[k] || []).forEach(function (m) { items.push(Object.assign({ stop: k }, m)); }); });
-    wrap.innerHTML = '<h3>Must-visit &amp; hidden gems near today</h3><div class="sub">Curated from what\'s well known about these spots — not live data, worth double-checking timings.</div>' +
+    wrap.innerHTML = '<h3>Must-visit &amp; hidden gems</h3><div class="sub">Curated, not live — check timings.</div>' +
       '<div class="mv-list">' + items.map(function (m) {
-        return '<div class="mv-item"><span>' + esc(m.t) + (m.gem ? '<span class="mv-gem">Hidden gem</span>' : "") + '</span><a class="nav-chip" href="' + mapsSearchUrl(m.t) + '" target="_blank" rel="noopener">&#129517; Go</a></div>';
+        return '<div class="mv-item"><span>' + esc(m.t) + (m.gem ? '<span class="mv-gem"><svg class="nav-icon" style="width:11px;height:11px;"><use href="#ic-gem"></use></svg>Gem</span>' : "") + '</span><a class="nav-chip" href="' + mapsSearchUrl(m.t) + '" target="_blank" rel="noopener">&#129517; Go</a></div>';
       }).join("") + "</div>";
   }
   function renderDayTabs() {
@@ -1074,7 +1115,7 @@
         '<div class="idea-top"><div><div class="idea-title">' + esc(p.title) + "</div>" +
           (p.note ? '<div class="idea-note">' + esc(p.note) + "</div>" : "") +
           '<a class="nav-chip" style="margin-top:6px;display:inline-flex;" href="' + mapsSearchUrl(p.place || p.title) + '" target="_blank" rel="noopener">&#129517; Navigate</a></div>' +
-          '<span class="chip ' + esc(p.category) + '" style="font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--pine-soft);color:var(--pine);white-space:nowrap;">' + esc(CATS[p.category] || p.category) + "</span></div>" +
+          '<span class="chip ' + esc(p.category) + '" style="display:inline-flex;align-items:center;gap:4px;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;padding:3px 9px 3px 6px;border-radius:999px;background:var(--pine-soft);color:var(--pine);white-space:nowrap;"><svg class="nav-icon" style="width:13px;height:13px;"><use href="#' + (CAT_ICONS[p.category] || "ic-see") + '"></use></svg>' + esc(CATS[p.category] || p.category) + "</span></div>" +
         '<div class="idea-bottom"><div class="vote-btns">' + btnHtml("yes","🔥",votes[ME]) + btnHtml("maybe","🤔",votes[ME]) + btnHtml("no","❌",votes[ME]) + "</div>" +
           '<div style="display:flex;align-items:center;gap:8px;">' +
             (locked ? '<span class="locked-tag">✓ Locked in</span>' : '<span class="score-badge">' + yesCount + "/" + names.length + " in</span>") +
